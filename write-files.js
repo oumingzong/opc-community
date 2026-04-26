@@ -1,4 +1,41 @@
-"use client";
+const fs = require('fs');
+
+const layout = `import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "广州人工智能OPC社区",
+  description: "广州人工智能OPC社区 - 探索AI无限可能，汇聚本地AI爱好者、开发者与研究者，共建开放协作的人工智能生态",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="zh-CN"
+      className={\`\${geistSans.variable} \${geistMono.variable} h-full antialiased\`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
+`;
+
+const page = `"use client";
 
 import {
   Brain,
@@ -26,16 +63,16 @@ function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-indigo-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <a href="#" className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-sky-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <Brain className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-sm sm:text-base text-gray-900">
               广州人工智能
-              <span className="bg-linear-to-r from-blue-500 to-sky-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
                 OPC社区
               </span>
             </span>
@@ -45,34 +82,34 @@ function Navbar() {
               <a
                 key={l.label}
                 href={l.href}
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                className="text-sm text-gray-600 hover:text-indigo-600 transition-colors font-medium"
               >
                 {l.label}
               </a>
             ))}
             <a
               href="#join"
-              className="text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-blue-500 to-sky-600 hover:opacity-90 transition-opacity shadow-md shadow-blue-200"
+              className="text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-indigo-500 to-purple-600 hover:opacity-90 transition-opacity shadow-md shadow-indigo-200"
             >
               立即加入
             </a>
           </div>
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-blue-50"
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-indigo-50"
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
       {open && (
-        <div className="md:hidden bg-white border-t border-blue-50 px-4 py-4 space-y-3">
+        <div className="md:hidden bg-white border-t border-indigo-50 px-4 py-4 space-y-3">
           {navLinks.map((l) => (
             <a
               key={l.label}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="block text-sm text-gray-700 hover:text-blue-600 font-medium py-1"
+              className="block text-sm text-gray-700 hover:text-indigo-600 font-medium py-1"
             >
               {l.label}
             </a>
@@ -80,7 +117,7 @@ function Navbar() {
           <a
             href="#join"
             onClick={() => setOpen(false)}
-            className="block w-full text-center text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-blue-500 to-sky-600"
+            className="block w-full text-center text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-indigo-500 to-purple-600"
           >
             立即加入
           </a>
@@ -106,27 +143,27 @@ function Hero() {
           backgroundSize: "60px 60px",
         }}
       />
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500 rounded-full opacity-20 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sky-600 rounded-full opacity-20 blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-indigo-500 rounded-full opacity-20 blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full opacity-20 blur-3xl" />
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-blue-200 text-sm font-medium mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-indigo-200 text-sm font-medium mb-6">
           <Sparkles className="w-4 h-4" />
           广州最活跃的人工智能开发者社区
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
           探索 AI{" "}
-          <span className="bg-linear-to-r from-blue-300 to-sky-300 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
             无限可能
           </span>
         </h1>
-        <p className="text-lg sm:text-xl text-blue-200 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-lg sm:text-xl text-indigo-200 max-w-2xl mx-auto mb-10 leading-relaxed">
           汇聚广州本地 AI 爱好者、开发者与研究者，共享前沿资讯、深度资源与线下交流，共建开放协作的人工智能生态。
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
             href="#join"
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold text-base hover:bg-blue-50 transition-colors shadow-lg shadow-blue-900/30"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-indigo-700 font-bold text-base hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/30"
           >
             加入社区 <ArrowRight className="w-4 h-4" />
           </a>
@@ -154,29 +191,29 @@ const features = [
     icon: Brain,
     title: "AI 前沿资讯",
     desc: "第一时间获取国内外最新 AI 技术进展、论文解读与产品动态，保持技术敏锐度。",
-    color: "from-blue-500 to-blue-500",
-    bg: "bg-blue-50",
+    color: "from-indigo-500 to-blue-500",
+    bg: "bg-indigo-50",
   },
   {
     icon: Users,
     title: "开放协作交流",
     desc: "与广州本地的 AI 开发者、创业者面对面交流，碰撞创意，共同解决技术难题。",
-    color: "from-sky-500 to-teal-500",
-    bg: "bg-sky-50",
+    color: "from-purple-500 to-pink-500",
+    bg: "bg-purple-50",
   },
   {
     icon: BookOpen,
     title: "技术资源共享",
     desc: "汇集优质教程、开源项目、数据集与工具，免费共享，加速你的 AI 学习与开发之旅。",
-    color: "from-indigo-500 to-sky-500",
-    bg: "bg-indigo-50",
+    color: "from-violet-500 to-purple-500",
+    bg: "bg-violet-50",
   },
   {
     icon: Calendar,
     title: "线下活动沙龙",
     desc: "定期举办技术讲座、黑客松、读书会等线下活动，与志同道合的人共同成长。",
-    color: "from-cyan-500 to-teal-500",
-    bg: "bg-cyan-50",
+    color: "from-fuchsia-500 to-pink-500",
+    bg: "bg-fuchsia-50",
   },
 ];
 
@@ -200,9 +237,9 @@ function Features() {
                 key={f.title}
                 className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-shadow border border-gray-100 overflow-hidden"
               >
-                <div className={`inline-flex p-3 rounded-xl ${f.bg} mb-4`}>
+                <div className={\`inline-flex p-3 rounded-xl \${f.bg} mb-4\`}>
                   <div
-                    className={`w-6 h-6 bg-linear-to-br ${f.color} rounded-md flex items-center justify-center`}
+                    className={\`w-6 h-6 bg-linear-to-br \${f.color} rounded-md flex items-center justify-center\`}
                   >
                     <Icon className="w-4 h-4 text-white" />
                   </div>
@@ -210,7 +247,7 @@ function Features() {
                 <h3 className="font-bold text-gray-900 text-lg mb-2">{f.title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
                 <div
-                  className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${f.color} opacity-0 group-hover:opacity-100 transition-opacity`}
+                  className={\`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r \${f.color} opacity-0 group-hover:opacity-100 transition-opacity\`}
                 />
               </div>
             );
@@ -242,7 +279,7 @@ function Stats() {
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-4xl font-extrabold text-white">{s.value}</p>
-                <p className="text-blue-200 text-sm font-medium">{s.label}</p>
+                <p className="text-indigo-200 text-sm font-medium">{s.label}</p>
               </div>
             );
           })}
@@ -285,7 +322,7 @@ function News() {
           </div>
           <a
             href="#"
-            className="hidden sm:inline-flex items-center gap-1 text-blue-600 font-semibold text-sm hover:gap-2 transition-all"
+            className="hidden sm:inline-flex items-center gap-1 text-indigo-600 font-semibold text-sm hover:gap-2 transition-all"
           >
             查看全部 <ArrowRight className="w-4 h-4" />
           </a>
@@ -294,15 +331,15 @@ function News() {
           {news.map((n) => (
             <article
               key={n.title}
-              className="group border border-gray-100 rounded-2xl p-6 hover:border-blue-200 hover:shadow-lg transition-all cursor-pointer"
+              className="group border border-gray-100 rounded-2xl p-6 hover:border-indigo-200 hover:shadow-lg transition-all cursor-pointer"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600">
                   {n.tag}
                 </span>
                 <span className="text-xs text-gray-400">{n.date}</span>
               </div>
-              <h3 className="font-bold text-gray-900 text-base mb-2 group-hover:text-blue-600 transition-colors leading-snug">
+              <h3 className="font-bold text-gray-900 text-base mb-2 group-hover:text-indigo-600 transition-colors leading-snug">
                 {n.title}
               </h3>
               <p className="text-gray-500 text-sm leading-relaxed">{n.desc}</p>
@@ -319,7 +356,7 @@ function CTABanner() {
   return (
     <section id="join" className="py-24 bg-slate-50">
       <div className="max-w-3xl mx-auto px-4 text-center">
-        <div className="bg-linear-to-br from-blue-600 to-sky-600 rounded-3xl px-8 py-14 shadow-2xl shadow-blue-200 relative overflow-hidden">
+        <div className="bg-linear-to-br from-indigo-600 to-purple-600 rounded-3xl px-8 py-14 shadow-2xl shadow-indigo-200 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-10"
             style={{
@@ -331,13 +368,13 @@ function CTABanner() {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
             加入广州 AI 开发者大家庭
           </h2>
-          <p className="text-blue-200 text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-indigo-200 text-lg mb-8 max-w-xl mx-auto">
             与 1000+ 成员一起学习成长，第一时间获取 AI 前沿资讯和线下活动通知。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="#"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-indigo-700 font-bold hover:bg-indigo-50 transition-colors shadow-lg"
             >
               <Users className="w-4 h-4" /> 立即加入社区
             </a>
@@ -362,7 +399,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-gray-800">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-sky-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-white text-base">广州人工智能OPC社区</span>
@@ -375,7 +412,7 @@ function Footer() {
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-gray-800 hover:bg-indigo-600 flex items-center justify-center transition-colors"
                 >
                   <Icon className="w-4 h-4 text-gray-300" />
                 </a>
@@ -387,7 +424,7 @@ function Footer() {
             <ul className="space-y-2 text-sm">
               {["社区动态", "资源中心", "活动日历", "关于我们"].map((t) => (
                 <li key={t}>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a href="#" className="hover:text-indigo-400 transition-colors">
                     {t}
                   </a>
                 </li>
@@ -397,8 +434,8 @@ function Footer() {
           <div>
             <h4 className="font-semibold text-white mb-4 text-sm">联系我们</h4>
             <ul className="space-y-2 text-sm">
-              <li>📍 广州市南沙区</li>
-              <li>📧 oujimmy9527@gmail.com</li>
+              <li>📍 广州市天河区</li>
+              <li>📧 hello@opc-ai.com</li>
               <li>💬 微信公众号：GZOPC_AI</li>
             </ul>
           </div>
@@ -429,3 +466,8 @@ export default function Home() {
     </main>
   );
 }
+`;
+
+fs.writeFileSync('app/layout.tsx', Buffer.from(layout, 'utf-8'));
+fs.writeFileSync('app/page.tsx', Buffer.from(page, 'utf-8'));
+console.log('Files created with proper UTF-8 encoding!');

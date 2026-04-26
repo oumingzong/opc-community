@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --opc-primary: #1D4ED8;
+  --opc-secondary: #0EA5E9;
+  --opc-gradient: linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 100%);
+  --opc-gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E3A8A 40%, #1E40AF 100%);
 }
 
 @theme inline {
