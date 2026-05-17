@@ -1,101 +1,26 @@
-"use client";
-
 import {
   Brain,
   Users,
   BookOpen,
   Calendar,
+  FileText,
   ArrowRight,
   Sparkles,
   Globe,
   MessageSquare,
   GitBranch,
   Mail,
-  Menu,
   X,
 } from "lucide-react";
-import { useState } from "react";
-
-// ─── Navbar ──────────────────────────────────────────────────────────────────
-function Navbar() {
-  const [open, setOpen] = useState(false);
-  const navLinks = [
-    { label: "社区动态", href: "#news" },
-    { label: "资源中心", href: "#resources" },
-    { label: "关于我们", href: "#about" },
-  ];
-
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <a href="#" className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-sky-600 flex items-center justify-center">
-              <Brain className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-sm sm:text-base text-gray-900">
-              广州人工智能
-              <span className="bg-linear-to-r from-blue-500 to-sky-600 bg-clip-text text-transparent">
-                OPC社区
-              </span>
-            </span>
-          </a>
-          <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium"
-              >
-                {l.label}
-              </a>
-            ))}
-            <a
-              href="#join"
-              className="text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-blue-500 to-sky-600 hover:opacity-90 transition-opacity shadow-md shadow-blue-200"
-            >
-              立即加入
-            </a>
-          </div>
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-blue-50"
-          >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-      {open && (
-        <div className="md:hidden bg-white border-t border-blue-50 px-4 py-4 space-y-3">
-          {navLinks.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="block text-sm text-gray-700 hover:text-blue-600 font-medium py-1"
-            >
-              {l.label}
-            </a>
-          ))}
-          <a
-            href="#join"
-            onClick={() => setOpen(false)}
-            className="block w-full text-center text-sm px-4 py-2 rounded-full text-white font-semibold bg-linear-to-r from-blue-500 to-sky-600"
-          >
-            立即加入
-          </a>
-        </div>
-      )}
-    </nav>
-  );
-}
+import Link from "next/link";
+import { getPolicyPreview } from "./data/policies";
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{ background: "var(--opc-gradient-hero)" }}
     >
       <div
@@ -124,18 +49,18 @@ function Hero() {
           汇聚广州本地 AI 爱好者、开发者与研究者，共享前沿资讯、深度资源与线下交流，共建开放协作的人工智能生态。
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="#join"
+          <Link
+            href="/join"
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold text-base hover:bg-blue-50 transition-colors shadow-lg shadow-blue-900/30"
           >
             加入社区 <ArrowRight className="w-4 h-4" />
-          </a>
-          <a
-            href="#resources"
+          </Link>
+          <Link
+            href="/about"
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold text-base hover:bg-white/10 transition-colors backdrop-blur-sm"
           >
-            浏览资源
-          </a>
+            了解更多
+          </Link>
         </div>
       </div>
 
@@ -274,6 +199,8 @@ const news = [
   },
 ];
 
+const policyPreview = getPolicyPreview(3);
+
 function News() {
   return (
     <section id="news" className="py-24 bg-white">
@@ -283,12 +210,12 @@ function News() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">社区动态</h2>
             <p className="text-gray-500">了解社区最新技术分享与活动资讯</p>
           </div>
-          <a
-            href="#"
+          <Link
+            href="/news"
             className="hidden sm:inline-flex items-center gap-1 text-blue-600 font-semibold text-sm hover:gap-2 transition-all"
           >
             查看全部 <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {news.map((n) => (
@@ -308,6 +235,62 @@ function News() {
               <p className="text-gray-500 text-sm leading-relaxed">{n.desc}</p>
             </article>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Policy Preview ──────────────────────────────────────────────────────────
+function PolicyPreview() {
+  return (
+    <section className="py-24 bg-slate-50 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="inline-flex items-center gap-2 text-xs font-semibold text-blue-700 bg-white border border-blue-100 rounded-full px-3 py-1 mb-3">
+              <FileText className="w-4 h-4" />
+              政策预览
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">相关政策</h2>
+            <p className="text-gray-500">聚合广州人工智能相关政策，帮助你快速掌握最新方向。</p>
+          </div>
+          <Link
+            href="/policy"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+          >
+            查看全部政策 <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {policyPreview.map((item) => (
+            <article
+              key={item.title}
+              className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-gray-900 leading-snug">{item.title}</h3>
+              <div className="mt-3 text-sm text-gray-500 space-y-1">
+                <p>{item.issuer}</p>
+                <p>{item.date}</p>
+              </div>
+              <Link
+                href="/policy"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+              >
+                查看政策详情 <ArrowRight className="w-4 h-4" />
+              </Link>
+            </article>
+          ))}
+        </div>
+
+        <div className="sm:hidden mt-8">
+          <Link
+            href="/policy"
+            className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-linear-to-r from-blue-500 to-sky-600 text-white px-5 py-3 font-semibold"
+          >
+            查看全部政策 <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
@@ -335,18 +318,18 @@ function CTABanner() {
             与 1000+ 成员一起学习成长，第一时间获取 AI 前沿资讯和线下活动通知。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#"
+            <Link
+              href="/join"
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold hover:bg-blue-50 transition-colors shadow-lg"
             >
               <Users className="w-4 h-4" /> 立即加入社区
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/resources"
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10 transition-colors"
             >
-              <Mail className="w-4 h-4" /> 订阅周刊
-            </a>
+              <Mail className="w-4 h-4" /> 浏览资源
+            </Link>
           </div>
         </div>
       </div>
@@ -419,11 +402,11 @@ function Footer() {
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <Navbar />
       <Hero />
       <Features />
       <Stats />
       <News />
+      <PolicyPreview />
       <CTABanner />
       <Footer />
     </main>
