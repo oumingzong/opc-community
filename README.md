@@ -34,3 +34,51 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## AI 前沿资讯（Resources）
+
+`/resources` 页面已实现“默认数据 + 后端接口预留”的结构，后续接后端时无需改页面渲染逻辑。
+
+### 本地默认模式
+
+- 页面默认读取内置资讯数据。
+- 同域接口 `GET /api/ai-news` 也会返回同一份结构化数据，可先用于联调。
+
+支持查询参数：
+
+- `page`：页码（从 1 开始）
+- `pageSize`：每页条数
+- `tag`：按标签过滤
+- `q`：关键字搜索（标题/摘要/来源/标签）
+
+返回结构：
+
+```json
+{
+	"items": [
+		{
+			"id": "ai-2026-05-18-npu",
+			"title": "...",
+			"summary": "...",
+			"publishedAt": "2026-05-18T09:00:00+08:00",
+			"sourceName": "...",
+			"sourceUrl": "https://...",
+			"tags": ["..."]
+		}
+	],
+	"total": 8,
+	"page": 1,
+	"pageSize": 9
+}
+```
+
+### 后端对接模式
+
+通过环境变量切换数据源：
+
+- `AI_NEWS_API_URL`：后端资讯接口地址（示例：`https://api.example.com/ai-news`）
+- `AI_NEWS_TIMEOUT_MS`：请求超时（毫秒，默认 `5000`）
+- `AI_NEWS_REVALIDATE`：Next 服务端缓存再验证秒数（默认 `1800`）
+- `AI_NEWS_FALLBACK_ENABLED`：后端失败时是否回退默认数据（默认 `true`，设置为 `false` 则直接抛错）
+
+当 `AI_NEWS_API_URL` 已配置时，页面优先拉取后端数据；失败时按 `AI_NEWS_FALLBACK_ENABLED` 决定是否自动回退到默认数据。

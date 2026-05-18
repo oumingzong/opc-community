@@ -1,69 +1,253 @@
-import { Brain, Users, BookOpen, Calendar } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ExternalLink, MapPin } from "lucide-react";
 
-const features = [
-  {
-    icon: Brain,
-    title: "AI 前沿资讯",
-    desc: "第一时间获取国内外最新 AI 技术进展、论文解读与产品动态，保持技术敏锐度。",
-    color: "from-blue-500 to-blue-500",
-    bg: "bg-blue-50",
-  },
-  {
-    icon: Users,
-    title: "开放协作交流",
-    desc: "与广州本地的 AI 开发者、创业者面对面交流，碰撞创意，共同解决技术难题。",
-    color: "from-sky-500 to-teal-500",
-    bg: "bg-sky-50",
-  },
-  {
-    icon: BookOpen,
-    title: "技术资源共享",
-    desc: "汇集优质教程、开源项目、数据集与工具，免费共享，加速你的 AI 学习与开发之旅。",
-    color: "from-indigo-500 to-sky-500",
-    bg: "bg-indigo-50",
-  },
-  {
-    icon: Calendar,
-    title: "线下活动沙龙",
-    desc: "定期举办技术讲座、黑客松、读书会等线下活动，与志同道合的人共同成长。",
-    color: "from-cyan-500 to-teal-500",
-    bg: "bg-cyan-50",
-  },
-];
+import { getAiNewsList } from "@/lib/ai-news-service";
+import { getCollaborationList } from "@/lib/collaboration-service";
+import { getOfflineEventList } from "@/lib/offline-events-service";
+import { getTechResourceList } from "@/lib/tech-resource-service";
 
-export default function ResourcesPage() {
+function toHumanDate(isoDate: string): string {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return isoDate;
+  }
+
+  return date.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
+export default async function ResourcesPage() {
+  const news = await getAiNewsList({ page: 1, pageSize: 3 });
+  const collaborations = await getCollaborationList({ page: 1, pageSize: 3 });
+  const techResources = await getTechResourceList({ page: 1, pageSize: 3 });
+  const offlineEvents = await getOfflineEventList({ page: 1, pageSize: 3 });
+
   return (
-    <main className="min-h-screen bg-slate-50 py-20">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">资源中心</h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            我们致力于为每位成员提供最有价值的 AI 学习与交流体验。
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div
-                key={f.title}
-                className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-shadow border border-gray-100 overflow-hidden"
-              >
-                <div className={`inline-flex p-3 rounded-xl ${f.bg} mb-4`}>
-                  <div
-                    className={`w-6 h-6 bg-linear-to-br ${f.color} rounded-md flex items-center justify-center`}
-                  >
-                    <Icon className="w-4 h-4 text-white" />
+    <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-cyan-50/30 py-20">
+      <section className="bg-linear-to-b from-cyan-50 via-blue-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-cyan-700 to-blue-700 bg-clip-text text-transparent">AI 前沿资讯</h2>
+            <Link href="/resources/ai-news" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 hover:text-blue-700">
+              查看完整资讯中心
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {news.items.map((item) => (
+              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <span key={`${item.id}-${tag}`} className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
+                </div>
+
+                <Link href={`/resources/ai-news/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-cyan-700">
+                  {item.title}
+                </Link>
+
+                <p className="mb-5 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-500">来源：{item.sourceName}</span>
+                  <div className="flex flex-nowrap items-center gap-3 whitespace-nowrap">
+                    <Link href={`/resources/ai-news/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800">
+                      详情
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700">
+                      原文
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
                   </div>
                 </div>
-                <h2 className="font-bold text-gray-900 text-lg mb-2">{f.title}</h2>
-                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
-                <div
-                  className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${f.color} opacity-0 group-hover:opacity-100 transition-opacity`}
-                />
-              </div>
-            );
-          })}
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-cyan-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 sm:hidden">
+            <Link href="/resources/ai-news" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-semibold text-white">
+              查看完整资讯中心
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-linear-to-b from-sky-50 via-cyan-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-sky-700 to-cyan-700 bg-clip-text text-transparent">开放协作交流</h2>
+            <Link href="/resources/collaboration" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-sky-700 hover:text-sky-800">
+              查看完整协作页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {collaborations.items.map((item) => (
+              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <span key={`${item.id}-${tag}`} className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
+                </div>
+
+                <Link href={`/resources/collaboration/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-sky-700">
+                  {item.title}
+                </Link>
+
+                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+
+                <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-slate-500">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {item.location}
+                </p>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-500">主办：{item.organizer}</span>
+                  <Link href={`/resources/collaboration/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-sky-700 transition-colors hover:text-sky-800">
+                    详情
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-sky-300 via-blue-500 to-cyan-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 sm:hidden">
+            <Link href="/resources/collaboration" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-sky-500 to-cyan-600 px-5 py-3 text-sm font-semibold text-white">
+              查看完整协作页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-linear-to-b from-indigo-50 via-purple-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">技术资源共享</h2>
+            <Link href="/resources/tech-resources" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-indigo-700 hover:text-indigo-800">
+              查看完整资源页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {techResources.items.map((item) => (
+              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <span key={`${item.id}-${tag}`} className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
+                </div>
+
+                <Link href={`/resources/tech-resources/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-indigo-700">
+                  {item.title}
+                </Link>
+
+                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-500">来源：{item.provider}</span>
+                  <Link href={`/resources/tech-resources/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-indigo-700 transition-colors hover:text-indigo-800">
+                    详情
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-indigo-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 sm:hidden">
+            <Link href="/resources/tech-resources" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-indigo-500 to-blue-600 px-5 py-3 text-sm font-semibold text-white">
+              查看完整资源页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-linear-to-b from-orange-50 via-amber-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-orange-700 to-amber-700 bg-clip-text text-transparent">线下活动沙龙</h2>
+            <Link href="/resources/offline-events" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-orange-700 hover:text-orange-800">
+              查看完整活动页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {offlineEvents.items.map((item) => (
+              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <span key={`${item.id}-${tag}`} className="rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-slate-400">{toHumanDate(item.startAt)}</span>
+                </div>
+
+                <Link href={`/resources/offline-events/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-orange-700">
+                  {item.title}
+                </Link>
+
+                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+
+                <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-slate-500">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {item.venue}
+                </p>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-500">主办：{item.organizer}</span>
+                  <Link href={`/resources/offline-events/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-orange-700 transition-colors hover:text-orange-800">
+                    详情
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-orange-300 via-amber-500 to-yellow-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 sm:hidden">
+            <Link href="/resources/offline-events" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-orange-500 to-amber-600 px-5 py-3 text-sm font-semibold text-white">
+              查看完整活动页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
     </main>
