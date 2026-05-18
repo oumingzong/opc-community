@@ -6,7 +6,7 @@
   --opc-primary: #1D4ED8;
   --opc-secondary: #0EA5E9;
   --opc-gradient: linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 100%);
-  --opc-gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E3A8A 40%, #1E40AF 100%);
+  --opc-gradient-hero: linear-gradient(135deg, #1D4ED8 0%, #2563EB 45%, #38BDF8 100%);
 }
 
 @theme inline {
@@ -18,8 +18,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 

@@ -8,9 +8,7 @@ import {
   Sparkles,
   Globe,
   MessageSquare,
-  GitBranch,
   Mail,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { getPolicyPreview } from "./data/policies";
@@ -64,11 +62,6 @@ function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 80H1440V40C1200 0 960 80 720 40C480 0 240 80 0 40V80Z" fill="#f8fafc" />
-        </svg>
-      </div>
     </section>
   );
 }
@@ -81,6 +74,7 @@ const features = [
     desc: "第一时间获取国内外最新 AI 技术进展、论文解读与产品动态，保持技术敏锐度。",
     color: "from-blue-500 to-blue-500",
     bg: "bg-blue-50",
+    href: "/resources/ai-news",
   },
   {
     icon: Users,
@@ -88,6 +82,7 @@ const features = [
     desc: "与广州本地的 AI 开发者、创业者面对面交流，碰撞创意，共同解决技术难题。",
     color: "from-sky-500 to-teal-500",
     bg: "bg-sky-50",
+    href: "/resources/collaboration",
   },
   {
     icon: BookOpen,
@@ -95,6 +90,7 @@ const features = [
     desc: "汇集优质教程、开源项目、数据集与工具，免费共享，加速你的 AI 学习与开发之旅。",
     color: "from-indigo-500 to-sky-500",
     bg: "bg-indigo-50",
+    href: "/resources/tech-resources",
   },
   {
     icon: Calendar,
@@ -102,6 +98,7 @@ const features = [
     desc: "定期举办技术讲座、黑客松、读书会等线下活动，与志同道合的人共同成长。",
     color: "from-cyan-500 to-teal-500",
     bg: "bg-cyan-50",
+    href: "/resources/offline-events",
   },
 ];
 
@@ -120,9 +117,11 @@ function Features() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f) => {
             const Icon = f.icon;
+            const Card = f.href ? Link : "div";
             return (
-              <div
+              <Card
                 key={f.title}
+                href={f.href}
                 className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-shadow border border-gray-100 overflow-hidden"
               >
                 <div className={`inline-flex p-3 rounded-xl ${f.bg} mb-4`}>
@@ -137,7 +136,7 @@ function Features() {
                 <div
                   className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${f.color} opacity-0 group-hover:opacity-100 transition-opacity`}
                 />
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -337,67 +336,6 @@ function CTABanner() {
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer id="about" className="bg-gray-950 text-gray-400 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-gray-800">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-sky-600 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold text-white text-base">广州人工智能OPC社区</span>
-            </div>
-            <p className="text-sm leading-relaxed max-w-xs">
-              汇聚广州 AI 开发者与爱好者，共建开放、协作、共享的人工智能生态圈。
-            </p>
-            <div className="flex gap-3 mt-6">
-              {[GitBranch, X, Mail].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="w-9 h-9 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors"
-                >
-                  <Icon className="w-4 h-4 text-gray-300" />
-                </a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-4 text-sm">快捷导航</h4>
-            <ul className="space-y-2 text-sm">
-              {["社区动态", "资源中心", "活动日历", "关于我们"].map((t) => (
-                <li key={t}>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    {t}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-white mb-4 text-sm">联系我们</h4>
-            <ul className="space-y-2 text-sm">
-              <li>📍 广州市南沙区</li>
-              <li>📧 oujimmy9527@gmail.com</li>
-              <li>💬 微信公众号：GZOPC_AI</li>
-            </ul>
-          </div>
-        </div>
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-600">
-          <p>© 2026 广州人工智能OPC社区. 保留所有权利。</p>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-gray-400 transition-colors">隐私政策</a>
-            <a href="#" className="hover:text-gray-400 transition-colors">使用条款</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Home() {
   return (
@@ -408,7 +346,6 @@ export default function Home() {
       <News />
       <PolicyPreview />
       <CTABanner />
-      <Footer />
     </main>
   );
 }
