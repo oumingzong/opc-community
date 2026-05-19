@@ -11,6 +11,8 @@ export type OfflineEventItem = {
   sourceUrl: string;
   tags: string[];
   capacity?: number;
+  coverImage?: string;
+  coverImageAlt?: string;
 };
 
 export type OfflineEventQuery = {
@@ -46,6 +48,8 @@ export const defaultOfflineEvents: OfflineEventItem[] = [
     sourceUrl: "https://www.meetup.com/",
     tags: ["AI Agent", "工程化", "线下沙龙"],
     capacity: 120,
+    coverImage: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "技术沙龙现场与演讲屏幕",
   },
   {
     id: "event-2026-02-rag-practice",
@@ -61,6 +65,8 @@ export const defaultOfflineEvents: OfflineEventItem[] = [
     sourceUrl: "https://www.gz.gov.cn/",
     tags: ["RAG", "评测", "知识库"],
     capacity: 90,
+    coverImage: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "团队围绕知识库架构展开讨论",
   },
   {
     id: "event-2026-01-multimodal-ui",
@@ -76,6 +82,8 @@ export const defaultOfflineEvents: OfflineEventItem[] = [
     sourceUrl: "https://www.eventbrite.com/",
     tags: ["多模态", "产品设计", "交互体验"],
     capacity: 100,
+    coverImage: "https://images.unsplash.com/photo-1551818255-e6e10975bc17?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "多模态交互与产品设计工作坊",
   },
   {
     id: "event-2025-12-model-governance",
@@ -91,6 +99,8 @@ export const defaultOfflineEvents: OfflineEventItem[] = [
     sourceUrl: "https://www.gz.gov.cn/",
     tags: ["合规", "治理", "风险控制"],
     capacity: 80,
+    coverImage: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "合规治理与网络安全主题画面",
   },
   {
     id: "event-2025-11-open-source-night",
@@ -106,6 +116,8 @@ export const defaultOfflineEvents: OfflineEventItem[] = [
     sourceUrl: "https://github.com/",
     tags: ["开源", "社区协作", "工具链"],
     capacity: 70,
+    coverImage: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "开源社区开发者线下交流",
   },
 ];
 

@@ -10,6 +10,7 @@ export type AiNewsItem = {
   tags: string[];
   author?: string;
   coverImage?: string;
+  coverImageAlt?: string;
 };
 
 export type AiNewsQuery = {
@@ -43,6 +44,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://ai.meta.com/blog/meta-llama-3-1/",
     tags: ["开源模型", "Llama", "大模型"],
     author: "Meta AI Team",
+    coverImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "AI 机器人与神经网络视觉图",
   },
   {
     id: "ai-2024-06-claude35",
@@ -56,6 +59,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://www.anthropic.com/news/claude-3-5-sonnet",
     tags: ["Claude", "模型发布", "企业应用"],
     author: "Anthropic",
+    coverImage: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "程序员在电脑前进行代码开发",
   },
   {
     id: "ai-2024-05-gemini15-pro",
@@ -69,6 +74,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://developers.googleblog.com/en/new-features-for-the-gemini-api-and-google-ai-studio/",
     tags: ["Gemini", "多模态", "长上下文"],
     author: "Google AI",
+    coverImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "数据中心与服务器机柜场景",
   },
   {
     id: "ai-2024-03-blackwell",
@@ -82,6 +89,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://nvidianews.nvidia.com/news/nvidia-blackwell-platform-arrives-to-power-a-new-era-of-computing",
     tags: ["算力", "NVIDIA", "基础设施"],
     author: "NVIDIA",
+    coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "高性能芯片与电路板特写",
   },
   {
     id: "ai-2024-02-openai-sora",
@@ -95,6 +104,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://openai.com/index/sora/",
     tags: ["文生视频", "多模态", "内容生成"],
     author: "OpenAI",
+    coverImage: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "视频制作与剪辑工作台",
   },
   {
     id: "ai-2024-12-deepseek-r1",
@@ -108,6 +119,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://api-docs.deepseek.com/news/news250120",
     tags: ["推理模型", "开源生态", "DeepSeek"],
     author: "DeepSeek Team",
+    coverImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "抽象机器人头部与科技背景",
   },
   {
     id: "ai-2024-05-openai-model-spec",
@@ -121,6 +134,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://openai.com/index/introducing-the-model-spec/",
     tags: ["模型治理", "安全", "合规"],
     author: "OpenAI",
+    coverImage: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "网络安全与数据保护概念图",
   },
   {
     id: "ai-2024-05-gpt4o",
@@ -134,6 +149,8 @@ export const defaultAiNews: AiNewsItem[] = [
     sourceUrl: "https://openai.com/index/hello-gpt-4o/",
     tags: ["多模态", "实时交互", "GPT-4o"],
     author: "OpenAI",
+    coverImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "AI 助手与人机交互概念图",
   },
 ];
 

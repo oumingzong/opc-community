@@ -10,6 +10,8 @@ export type CollaborationItem = {
   sourceUrl: string;
   tags: string[];
   contact?: string;
+  coverImage?: string;
+  coverImageAlt?: string;
 };
 
 export type CollaborationQuery = {
@@ -44,6 +46,8 @@ export const defaultCollaborations: CollaborationItem[] = [
     sourceUrl: "https://www.meetup.com/",
     tags: ["共创", "AI Agent", "线下活动"],
     contact: "ops@opc-community.cn",
+    coverImage: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "团队围绕白板进行产品共创讨论",
   },
   {
     id: "collab-2025-12-hackathon",
@@ -58,6 +62,8 @@ export const defaultCollaborations: CollaborationItem[] = [
     sourceUrl: "https://gdg.community.dev/",
     tags: ["黑客松", "多智能体", "实践"],
     contact: "events@opc-community.cn",
+    coverImage: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "开发者团队在笔记本前协作编程",
   },
   {
     id: "collab-2025-11-reading-club",
@@ -72,6 +78,8 @@ export const defaultCollaborations: CollaborationItem[] = [
     sourceUrl: "https://www.gzaiia.org/",
     tags: ["读书会", "RAG", "工程化"],
     contact: "community@opc-community.cn",
+    coverImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "读书会交流与文档讨论场景",
   },
   {
     id: "collab-2025-10-startup-match",
@@ -86,6 +94,8 @@ export const defaultCollaborations: CollaborationItem[] = [
     sourceUrl: "https://www.gz.gov.cn/",
     tags: ["创业", "资源对接", "产业协作"],
     contact: "biz@opc-community.cn",
+    coverImage: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "创业路演与商务洽谈现场",
   },
   {
     id: "collab-2025-09-university-link",
@@ -100,6 +110,8 @@ export const defaultCollaborations: CollaborationItem[] = [
     sourceUrl: "https://www.gz.gov.cn/",
     tags: ["产学研", "人才", "联合实践"],
     contact: "edu@opc-community.cn",
+    coverImage: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "高校与企业代表交流活动合影",
   },
 ];
 

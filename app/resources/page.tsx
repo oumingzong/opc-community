@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ExternalLink, MapPin } from "lucide-react";
 
 import { getAiNewsList } from "@/lib/ai-news-service";
@@ -19,6 +20,14 @@ function toHumanDate(isoDate: string): string {
   });
 }
 
+function getCoverImage(item: { slug: string; coverImage?: string }, category: string): string {
+  return item.coverImage?.trim() || `https://picsum.photos/seed/opc-${category}-${item.slug}/1200/720`;
+}
+
+function getCoverAlt(item: { title: string; coverImageAlt?: string }): string {
+  return item.coverImageAlt?.trim() || `${item.title} 预览图`;
+}
+
 export default async function ResourcesPage() {
   const news = await getAiNewsList({ page: 1, pageSize: 3 });
   const collaborations = await getCollaborationList({ page: 1, pageSize: 3 });
@@ -27,7 +36,7 @@ export default async function ResourcesPage() {
 
   return (
     <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-cyan-50/30 py-20">
-      <section className="bg-linear-to-b from-cyan-50 via-blue-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+      <section className="bg-linear-to-b from-cyan-50 via-blue-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-2xl font-bold bg-linear-to-r from-cyan-700 to-blue-700 bg-clip-text text-transparent">AI 前沿资讯</h2>
@@ -40,6 +49,17 @@ export default async function ResourcesPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {news.items.map((item) => (
               <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={getCoverImage(item, "ai-news")}
+                      alt={getCoverAlt(item)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
                     {item.tags.slice(0, 2).map((tag) => (
@@ -85,11 +105,11 @@ export default async function ResourcesPage() {
         </div>
       </section>
 
-      <section className="bg-linear-to-b from-sky-50 via-cyan-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+      <section className="bg-linear-to-b from-rose-50 via-orange-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-sky-700 to-cyan-700 bg-clip-text text-transparent">开放协作交流</h2>
-            <Link href="/resources/collaboration" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-sky-700 hover:text-sky-800">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-rose-700 to-orange-700 bg-clip-text text-transparent">开放协作交流</h2>
+            <Link href="/resources/collaboration" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-rose-700 hover:text-rose-800">
               查看完整协作页
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -98,10 +118,21 @@ export default async function ResourcesPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {collaborations.items.map((item) => (
               <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={getCoverImage(item, "collaboration")}
+                      alt={getCoverAlt(item)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
                     {item.tags.slice(0, 2).map((tag) => (
-                      <span key={`${item.id}-${tag}`} className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
+                      <span key={`${item.id}-${tag}`} className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
                         {tag}
                       </span>
                     ))}
@@ -109,7 +140,7 @@ export default async function ResourcesPage() {
                   <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
                 </div>
 
-                <Link href={`/resources/collaboration/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-sky-700">
+                <Link href={`/resources/collaboration/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-rose-700">
                   {item.title}
                 </Link>
 
@@ -122,19 +153,19 @@ export default async function ResourcesPage() {
 
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs text-slate-500">主办：{item.organizer}</span>
-                  <Link href={`/resources/collaboration/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-sky-700 transition-colors hover:text-sky-800">
+                  <Link href={`/resources/collaboration/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-rose-700 transition-colors hover:text-rose-800">
                     详情
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-sky-300 via-blue-500 to-cyan-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-rose-300 via-orange-500 to-amber-400 opacity-0 transition-opacity group-hover:opacity-100" />
               </article>
             ))}
           </div>
 
           <div className="mt-8 sm:hidden">
-            <Link href="/resources/collaboration" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-sky-500 to-cyan-600 px-5 py-3 text-sm font-semibold text-white">
+            <Link href="/resources/collaboration" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-rose-500 to-orange-600 px-5 py-3 text-sm font-semibold text-white">
               查看完整协作页
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -142,7 +173,7 @@ export default async function ResourcesPage() {
         </div>
       </section>
 
-      <section className="bg-linear-to-b from-indigo-50 via-purple-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+      <section className="bg-linear-to-b from-indigo-50 via-purple-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-2xl font-bold bg-linear-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">技术资源共享</h2>
@@ -155,6 +186,17 @@ export default async function ResourcesPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {techResources.items.map((item) => (
               <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={getCoverImage(item, "tech-resources")}
+                      alt={getCoverAlt(item)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
                     {item.tags.slice(0, 2).map((tag) => (
@@ -194,7 +236,7 @@ export default async function ResourcesPage() {
         </div>
       </section>
 
-      <section className="bg-linear-to-b from-orange-50 via-amber-50 to-white py-12 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-20 sm:rounded-3xl">
+      <section className="bg-linear-to-b from-orange-50 via-amber-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-2xl font-bold bg-linear-to-r from-orange-700 to-amber-700 bg-clip-text text-transparent">线下活动沙龙</h2>
@@ -207,6 +249,17 @@ export default async function ResourcesPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {offlineEvents.items.map((item) => (
               <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={getCoverImage(item, "offline-events")}
+                      alt={getCoverAlt(item)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
                     {item.tags.slice(0, 2).map((tag) => (

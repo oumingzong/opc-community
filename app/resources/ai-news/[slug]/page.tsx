@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -21,6 +22,14 @@ function toHumanDate(isoDate: string): string {
     month: "2-digit",
     day: "2-digit",
   });
+}
+
+function getCoverImage(item: { slug: string; coverImage?: string }): string {
+  return item.coverImage?.trim() || `https://picsum.photos/seed/opc-ai-news-${item.slug}/1200/720`;
+}
+
+function getCoverAlt(item: { title: string; coverImageAlt?: string }): string {
+  return item.coverImageAlt?.trim() || `${item.title} 预览图`;
 }
 
 type PageProps = {
@@ -49,6 +58,18 @@ export default async function AiNewsDetailPage({ params }: PageProps) {
         </Link>
 
         <header className="mt-5 rounded-3xl border border-slate-100 bg-white p-7 shadow-sm">
+          <div className="mb-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
+            <div className="relative aspect-[16/9] w-full">
+              <Image
+                src={getCoverImage(item)}
+                alt={getCoverAlt(item)}
+                fill
+                sizes="(max-width: 1024px) 100vw, 896px"
+                className="object-cover"
+              />
+            </div>
+          </div>
+
           <div className="mb-4 flex flex-wrap items-center gap-2">
             {item.tags.map((tag) => (
               <span key={tag} className="rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700">

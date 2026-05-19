@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ExternalLink, MapPin, RefreshCw, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -23,6 +24,14 @@ function toHumanDate(isoDate: string): string {
   });
 }
 
+function getCoverImage(item: { slug: string; coverImage?: string }): string {
+  return item.coverImage?.trim() || `https://picsum.photos/seed/opc-collaboration-${item.slug}/1200/720`;
+}
+
+function getCoverAlt(item: { title: string; coverImageAlt?: string }): string {
+  return item.coverImageAlt?.trim() || `${item.title} 预览图`;
+}
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -38,7 +47,7 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
   const { item, dataSource } = result;
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-sky-50/40 py-20">
+    <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-rose-50/40 py-20">
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           href="/resources/collaboration"
@@ -49,9 +58,21 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
         </Link>
 
         <header className="mt-5 rounded-3xl border border-slate-100 bg-white p-7 shadow-sm">
+          <div className="mb-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
+            <div className="relative aspect-[16/9] w-full">
+              <Image
+                src={getCoverImage(item)}
+                alt={getCoverAlt(item)}
+                fill
+                sizes="(max-width: 1024px) 100vw, 896px"
+                className="object-cover"
+              />
+            </div>
+          </div>
+
           <div className="mb-4 flex flex-wrap items-center gap-2">
             {item.tags.map((tag) => (
-              <span key={tag} className="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+              <span key={tag} className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
                 {tag}
               </span>
             ))}
@@ -94,9 +115,9 @@ export default async function CollaborationDetailPage({ params }: PageProps) {
           <h2 className="text-xl font-bold text-slate-900 mb-3">活动说明</h2>
           <p className="text-slate-700 leading-8">{item.content}</p>
 
-          <div className="mt-8 rounded-2xl border border-sky-100 bg-sky-50/70 p-5">
-            <h3 className="text-sm font-bold text-sky-800">后端对接预留（管理端）</h3>
-            <ul className="mt-2 space-y-1 text-sm text-sky-900">
+          <div className="mt-8 rounded-2xl border border-rose-100 bg-rose-50/70 p-5">
+            <h3 className="text-sm font-bold text-rose-800">后端对接预留（管理端）</h3>
+            <ul className="mt-2 space-y-1 text-sm text-rose-900">
               <li>POST /api/admin/collaboration：新增协作活动</li>
               <li>PATCH /api/admin/collaboration/:slug：更新活动信息</li>
               <li>DELETE /api/admin/collaboration/:slug：删除活动</li>

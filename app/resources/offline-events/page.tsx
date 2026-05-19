@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Calendar, ExternalLink, MapPin, RefreshCw } from "lucide-react";
 
 import { getOfflineEventList } from "@/lib/offline-events-service";
@@ -22,6 +23,14 @@ function toHumanDateTime(isoDate: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function getCoverImage(item: { slug: string; coverImage?: string }): string {
+  return item.coverImage?.trim() || `https://picsum.photos/seed/opc-offline-events-${item.slug}/1200/720`;
+}
+
+function getCoverAlt(item: { title: string; coverImageAlt?: string }): string {
+  return item.coverImageAlt?.trim() || `${item.title} 预览图`;
 }
 
 export default async function OfflineEventsPage() {
@@ -64,6 +73,17 @@ export default async function OfflineEventsPage() {
               key={item.id}
               className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
             >
+              <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                <div className="relative aspect-[16/9] w-full">
+                  <Image
+                    src={getCoverImage(item)}
+                    alt={getCoverAlt(item)}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+              </div>
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
                   {item.tags.slice(0, 3).map((tag) => (

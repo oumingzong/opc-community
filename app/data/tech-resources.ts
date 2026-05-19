@@ -10,6 +10,8 @@ export type TechResourceItem = {
   level: "入门" | "进阶" | "实战";
   sourceUrl: string;
   tags: string[];
+  coverImage?: string;
+  coverImageAlt?: string;
 };
 
 export type TechResourceQuery = {
@@ -44,6 +46,8 @@ export const defaultTechResources: TechResourceItem[] = [
     level: "实战",
     sourceUrl: "https://cloud.google.com/architecture",
     tags: ["LLMOps", "上线实践", "监控"],
+    coverImage: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "工程团队在代码与监控大屏前协作",
   },
   {
     id: "tech-2025-11-rag",
@@ -58,6 +62,8 @@ export const defaultTechResources: TechResourceItem[] = [
     level: "进阶",
     sourceUrl: "https://learn.microsoft.com/",
     tags: ["RAG", "检索", "架构"],
+    coverImage: "https://images.unsplash.com/photo-1518186233392-c232efbf2373?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "知识检索与系统架构图示场景",
   },
   {
     id: "tech-2025-10-agent",
@@ -72,6 +78,8 @@ export const defaultTechResources: TechResourceItem[] = [
     level: "进阶",
     sourceUrl: "https://docs.langchain.com/",
     tags: ["AI Agent", "工作流", "工程化"],
+    coverImage: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "开发者进行 Agent 工作流编排",
   },
   {
     id: "tech-2025-09-eval",
@@ -86,6 +94,8 @@ export const defaultTechResources: TechResourceItem[] = [
     level: "入门",
     sourceUrl: "https://cookbook.openai.com/",
     tags: ["评测", "Prompt", "质量保障"],
+    coverImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "评测指标讨论与文档评审会议",
   },
   {
     id: "tech-2025-08-vector-db",
@@ -100,6 +110,8 @@ export const defaultTechResources: TechResourceItem[] = [
     level: "进阶",
     sourceUrl: "https://www.pinecone.io/learn/",
     tags: ["向量数据库", "选型", "性能"],
+    coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80",
+    coverImageAlt: "数据库与系统性能优化开发场景",
   },
 ];
 
