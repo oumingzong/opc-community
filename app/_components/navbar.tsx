@@ -7,6 +7,7 @@ import { Brain, Menu, X } from "lucide-react";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navLinks = [
+    { label: "广州OPC载体", href: "/community-map" },
     { label: "社区动态", href: "/news" },
     { label: "资源中心", href: "/resources" },
     { label: "相关政策", href: "/policy" },
