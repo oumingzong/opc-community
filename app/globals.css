@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 
 :root {
@@ -27,4 +28,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.leaflet-control-zoom,
+.leaflet-control-attribution {
+  display: none !important;
 }

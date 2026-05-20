@@ -4,6 +4,8 @@ export type CommunityCarrierItem = {
   name: string;
   district: string;
   address: string;
+  longitude: number;
+  latitude: number;
   summary: string;
   capabilities: string[];
   coverImage?: string;
@@ -17,6 +19,8 @@ export const defaultCommunityCarriers: CommunityCarrierItem[] = [
     name: "南沙区人才港",
     district: "南沙区",
     address: "广州市南沙区人才港",
+    longitude: 113.5403,
+    latitude: 22.7905,
     summary: "作为 OPC 社区主载体，承接主题沙龙、项目路演与协作对接等活动。",
     capabilities: ["线下活动", "项目路演", "协作对接"],
     coverImage: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
@@ -28,6 +32,8 @@ export const defaultCommunityCarriers: CommunityCarrierItem[] = [
     name: "天河创新交流空间",
     district: "天河区",
     address: "广州市天河区珠江新城创新空间",
+    longitude: 113.3245,
+    latitude: 23.1291,
     summary: "重点服务技术分享与企业协作，适合举办中小规模专题工作坊与闭门会。",
     capabilities: ["技术工作坊", "企业协作", "专题闭门会"],
     coverImage: "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
@@ -39,6 +45,8 @@ export const defaultCommunityCarriers: CommunityCarrierItem[] = [
     name: "海珠数字共创中心",
     district: "海珠区",
     address: "广州市海珠区琶洲数字产业园",
+    longitude: 113.3775,
+    latitude: 23.1035,
     summary: "面向开源生态与高校团队，支持联合开发、Demo 展示和成果交流。",
     capabilities: ["开源共创", "高校协作", "Demo 展示"],
     coverImage: "https://images.unsplash.com/photo-1522071901873-411886a10004?auto=format&fit=crop&w=1200&q=80",

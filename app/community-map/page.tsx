@@ -2,13 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Building2, Sparkles } from "lucide-react";
 import { listCommunityCarriers } from "../data/community-carriers";
-
-function getMapJumpUrl(): string {
-  return "https://www.openstreetmap.org/?mlat=22.7905&mlon=113.5403#map=12/22.7905/113.5403";
-}
+import OpcLeafletMap from "./_components/opc-leaflet-map";
 
 export default async function CommunityMapPage() {
   const carriers = await listCommunityCarriers();
+  const mapCarriers = carriers.map((carrier) => ({
+    id: carrier.id,
+    name: carrier.name,
+    district: carrier.district,
+    address: carrier.address,
+    longitude: carrier.longitude,
+    latitude: carrier.latitude,
+  }));
 
   return (
     <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-cyan-50/30 py-20">
@@ -20,13 +25,14 @@ export default async function CommunityMapPage() {
 
         <div className="mt-5 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
           <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
+            <OpcLeafletMap carriers={mapCarriers} />
             <div className="pointer-events-none absolute left-6 top-6 rounded-2xl border border-white/20 bg-slate-950/50 px-4 py-3 text-white backdrop-blur-sm sm:left-8 sm:top-8">
               <div className="inline-flex items-center gap-2 text-xs font-semibold text-cyan-200 mb-2">
                 <Sparkles className="h-3.5 w-3.5" />
                 广州 OPC 社区地图
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold">广州人工智能 OPC 社区载体</h1>
-              <p className="mt-2 text-sm text-slate-200">当前先加载本地广东省底图，并标出广州南沙区人才港位置</p>
+              <p className="mt-2 text-sm text-slate-200">基于 Leaflet 加载地图，并标出广州 OPC 社区载体位置</p>
             </div>
           </div>
         </div>
