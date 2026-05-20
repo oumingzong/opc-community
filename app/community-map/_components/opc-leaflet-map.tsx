@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import L from "leaflet";
+import type * as Leaflet from "leaflet";
 
 type CarrierMapPoint = {
   id: string;
@@ -44,73 +44,89 @@ export default function OpcLeafletMap({ carriers }: OpcLeafletMapProps) {
       return;
     }
 
-    const map = L.map(mapRef.current, {
-      zoomControl: false,
-      attributionControl: false,
-    }).setView(getInitialCenter(carriers), carriers.length > 0 ? 12 : 11);
+    let disposed = false;
+    let cleanup: (() => void) | undefined;
 
-    L.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
-      attribution: '地图数据 &copy; 高德地图',
-      subdomains: "1234",
-      maxZoom: 19,
-      minZoom: 10,
-    }).addTo(map);
+    void (async () => {
+      const L = (await import("leaflet")) as typeof Leaflet;
 
-    const markerGroup = L.layerGroup().addTo(map);
-    const markerBounds: L.LatLngTuple[] = [];
+      if (!mapRef.current || disposed) {
+        return;
+      }
 
-    carriers.forEach((carrier) => {
-      const latLng: L.LatLngTuple = [carrier.latitude, carrier.longitude];
-      markerBounds.push(latLng);
+      const map = L.map(mapRef.current, {
+        zoomControl: false,
+        attributionControl: false,
+      }).setView(getInitialCenter(carriers), carriers.length > 0 ? 12 : 11);
 
-      L.circleMarker(latLng, {
-        radius: 8,
-        color: "#ffffff",
-        weight: 2,
-        fillColor: "#f43f5e",
-        fillOpacity: 0.95,
-      })
-        .bindTooltip(carrier.name, {
-          permanent: true,
-          direction: "top",
-          offset: [0, -10],
-          className: "opc-map-label",
+      L.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
+        attribution: '地图数据 &copy; 高德地图',
+        subdomains: "1234",
+        maxZoom: 19,
+        minZoom: 10,
+      }).addTo(map);
+
+      const markerGroup = L.layerGroup().addTo(map);
+      const markerBounds: Leaflet.LatLngTuple[] = [];
+
+      carriers.forEach((carrier) => {
+        const latLng: Leaflet.LatLngTuple = [carrier.latitude, carrier.longitude];
+        markerBounds.push(latLng);
+
+        L.circleMarker(latLng, {
+          radius: 8,
+          color: "#ffffff",
+          weight: 2,
+          fillColor: "#f43f5e",
+          fillOpacity: 0.95,
         })
-        .bindPopup(
-          `
-            <div style="min-width: 190px; color: #0f172a; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;">
-              <div style="font-weight: 700; margin-bottom: 4px;">${escapeHtml(carrier.name)}</div>
-              <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">${escapeHtml(carrier.district)}</div>
-              <div style="font-size: 12px; line-height: 1.5; color: #334155;">${escapeHtml(carrier.address)}</div>
-            </div>
-          `
-        )
-        .addTo(markerGroup);
-    });
-
-    if (markerBounds.length === 1) {
-      map.setView(markerBounds[0], 13);
-    } else if (markerBounds.length > 1) {
-      map.fitBounds(markerBounds, {
-        padding: [48, 48],
-        maxZoom: 12,
+          .bindTooltip(carrier.name, {
+            permanent: true,
+            direction: "top",
+            offset: [0, -10],
+            className: "opc-map-label",
+          })
+          .bindPopup(
+            `
+              <div style="min-width: 190px; color: #0f172a; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;">
+                <div style="font-weight: 700; margin-bottom: 4px;">${escapeHtml(carrier.name)}</div>
+                <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">${escapeHtml(carrier.district)}</div>
+                <div style="font-size: 12px; line-height: 1.5; color: #334155;">${escapeHtml(carrier.address)}</div>
+              </div>
+            `
+          )
+          .addTo(markerGroup);
       });
-    }
 
-    const handleResize = () => {
-      map.invalidateSize();
-    };
+      if (markerBounds.length === 1) {
+        map.setView(markerBounds[0], 13);
+      } else if (markerBounds.length > 1) {
+        map.fitBounds(markerBounds, {
+          padding: [48, 48],
+          maxZoom: 12,
+        });
+      }
 
-    window.addEventListener("resize", handleResize);
+      const handleResize = () => {
+        map.invalidateSize();
+      };
 
-    requestAnimationFrame(() => {
-      map.invalidateSize();
-    });
+      window.addEventListener("resize", handleResize);
+
+      requestAnimationFrame(() => {
+        map.invalidateSize();
+      });
+
+      cleanup = () => {
+        window.removeEventListener("resize", handleResize);
+        markerGroup.clearLayers();
+        map.remove();
+      };
+    })();
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      markerGroup.clearLayers();
-      map.remove();
+      disposed = true;
+      cleanup?.();
     };
   }, [carriers]);
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Users, Mail } from "lucide-react";
 
 export default function JoinPage() {
@@ -32,6 +33,21 @@ export default function JoinPage() {
             >
               <Mail className="w-4 h-4" /> 浏览资源
             </Link>
+          </div>
+
+          <div className="relative mt-10 mx-auto w-full max-w-sm rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+            <h2 className="text-white text-lg font-bold">扫码添加微信，获取帮助</h2>
+            <p className="mt-1 text-sm text-blue-100">添加时请备注：来自 OPC 社区官网</p>
+            <div className="mt-4 mx-auto w-fit rounded-xl bg-white p-3 shadow-lg">
+              <Image
+                src="/微信二维码.jpg"
+                alt="OPC 社区微信二维码"
+                width={220}
+                height={220}
+                className="h-[220px] w-[220px] rounded-md object-cover"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>

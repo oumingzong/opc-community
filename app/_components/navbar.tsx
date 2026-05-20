@@ -30,6 +30,12 @@ export default function Navbar() {
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
+            <Link
+              href="/plaza"
+              className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            >
+              交流广场
+            </Link>
             {navLinks.map((l) => (
               <Link
                 key={l.label}
@@ -57,6 +63,13 @@ export default function Navbar() {
       </div>
       {open && (
         <div className="md:hidden bg-white border-t border-blue-50 px-4 py-4 space-y-3">
+          <Link
+            href="/plaza"
+            onClick={() => setOpen(false)}
+            className="block text-sm text-gray-700 hover:text-blue-600 font-medium py-1"
+          >
+            交流广场
+          </Link>
           {navLinks.map((l) => (
             <Link
               key={l.label}

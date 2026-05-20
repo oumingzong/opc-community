@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -33,6 +34,18 @@ export default function Footer() {
               <li>📧 oujimmy9527@gmail.com</li>
               <li>💬 微信公众号：GZOPC_AI</li>
             </ul>
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+              <p className="text-xs font-semibold text-cyan-100">扫码添加微信，获取帮助</p>
+              <div className="mt-2 w-fit rounded-md bg-white p-1.5">
+                <Image
+                  src="/微信二维码.jpg"
+                  alt="OPC 社区微信二维码"
+                  width={84}
+                  height={84}
+                  className="h-[84px] w-[84px] rounded-sm object-cover"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
