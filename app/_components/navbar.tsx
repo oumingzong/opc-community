@@ -10,6 +10,7 @@ export default function Navbar() {
     { label: "广州OPC载体", href: "/community-map" },
     { label: "社区动态", href: "/news" },
     { label: "资源中心", href: "/resources" },
+    { label: "AI工具", href: "/ai-tools" },
     { label: "相关政策", href: "/policy" },
     { label: "关于我们", href: "/about" },
   ];
