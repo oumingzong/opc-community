@@ -36,6 +36,21 @@ export default async function ResourcesPage() {
 
   return (
     <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-cyan-50/30 py-20">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-600">内容服务联调入口已上线，可直接验证列表、详情、404 与 fallback。</p>
+            <Link
+              href="/resources/hub"
+              className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 hover:text-blue-700"
+            >
+              进入联调 Hub
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-linear-to-b from-cyan-50 via-blue-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
