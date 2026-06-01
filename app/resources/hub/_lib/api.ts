@@ -1,10 +1,12 @@
 import { FALLBACK_LIST } from "./fallback";
 import type { PublicDetailResponse, PublicListParams, PublicListResponse } from "./types";
 
-const API_BASE =
+const rawApiBase =
   process.env.NEXT_PUBLIC_CONTENT_API_BASE ||
   process.env.REACT_APP_CONTENT_API_BASE ||
   "https://opc-content-hub.2086206051.workers.dev";
+
+const API_BASE = rawApiBase.replace(/\/+$/, "");
 
 const LIST_TTL_MS = 60_000;
 
