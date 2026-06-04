@@ -5,6 +5,7 @@ import {
   type TechResourceListResponse,
   type TechResourceQuery,
 } from "@/app/data/tech-resources";
+import { parseContentHubDetailPayload, parseContentHubListPayload } from "@/lib/content-hub-adapter";
 
 export type TechResourceDataSource = "default" | "api" | "fallback";
 
@@ -37,12 +38,13 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 function getConfig() {
   return {
     apiUrl: process.env.TECH_RESOURCE_API_URL?.trim() ?? "",
+    contentType: process.env.TECH_RESOURCE_CONTENT_TYPE?.trim() || "tech-resource",
     timeoutMs: parsePositiveInt(process.env.TECH_RESOURCE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
     revalidateSeconds: parsePositiveInt(process.env.TECH_RESOURCE_REVALIDATE, DEFAULT_REVALIDATE_SECONDS),
   };
 }
 
-function withQuery(url: string, query: TechResourceQuery): string {
+function withQuery(url: string, query: TechResourceQuery, contentType: string): string {
   const target = new URL(url);
   if (query.page) {
     target.searchParams.set("page", String(query.page));
@@ -55,6 +57,9 @@ function withQuery(url: string, query: TechResourceQuery): string {
   }
   if (query.q) {
     target.searchParams.set("q", query.q);
+  }
+  if (contentType) {
+    target.searchParams.set("type", contentType);
   }
   return target.toString();
 }
@@ -94,12 +99,38 @@ function isTechResourceItem(value: unknown): value is TechResourceItem {
   );
 }
 
-async function fetchListFromApi(query: TechResourceQuery, apiUrl: string, timeoutMs: number, revalidateSeconds: number) {
+function mapContentHubItemToTechResourceItem(item: {
+  id: number | string;
+  slug: string;
+  title: string;
+  summary?: string | null;
+  content?: string | null;
+  published_at?: string | null;
+  source_name?: string;
+  source_url?: string | null;
+  type?: string;
+}): TechResourceItem {
+  return {
+    id: String(item.id),
+    slug: item.slug,
+    title: item.title,
+    summary: item.summary?.trim() || "暂无摘要",
+    content: item.content?.trim() || item.summary?.trim() || "暂无正文",
+    publishedAt: item.published_at || new Date().toISOString(),
+    provider: item.source_name?.trim() || "OPC Content Hub",
+    format: "技术文章",
+    level: "入门",
+    sourceUrl: item.source_url?.trim() || "https://opc-content-hub.2086206051.workers.dev",
+    tags: item.type ? [item.type] : ["资源"],
+  };
+}
+
+async function fetchListFromApi(query: TechResourceQuery, apiUrl: string, contentType: string, timeoutMs: number, revalidateSeconds: number) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(withQuery(apiUrl, query), {
+    const response = await fetch(withQuery(apiUrl, query, contentType), {
       signal: controller.signal,
       next: { revalidate: revalidateSeconds },
     });
@@ -109,11 +140,22 @@ async function fetchListFromApi(query: TechResourceQuery, apiUrl: string, timeou
     }
 
     const payload: unknown = await response.json();
-    if (!isTechResourceListResponse(payload)) {
-      throw new Error("Tech resource API response shape is invalid");
+    if (isTechResourceListResponse(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubListPayload(payload);
+    if (contentHub) {
+      return {
+        items: contentHub.items.map(mapContentHubItemToTechResourceItem),
+        total: contentHub.total ?? contentHub.items.length,
+        page: contentHub.page ?? query.page ?? 1,
+        pageSize: contentHub.pageSize ?? query.pageSize ?? contentHub.items.length,
+      };
+    }
+
+    throw new Error("Tech resource API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
@@ -139,18 +181,24 @@ async function fetchDetailFromApi(slug: string, apiUrl: string, timeoutMs: numbe
     }
 
     const payload: unknown = await response.json();
-    if (!isTechResourceItem(payload)) {
-      throw new Error("Tech resource detail API response shape is invalid");
+    if (isTechResourceItem(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubDetailPayload(payload);
+    if (contentHub) {
+      return mapContentHubItemToTechResourceItem(contentHub.item);
+    }
+
+    throw new Error("Tech resource detail API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
 }
 
 export async function getTechResourceList(query: TechResourceQuery = {}): Promise<TechResourceListResult> {
-  const { apiUrl, timeoutMs, revalidateSeconds } = getConfig();
+  const { apiUrl, contentType, timeoutMs, revalidateSeconds } = getConfig();
 
   if (!apiUrl) {
     return {
@@ -160,7 +208,7 @@ export async function getTechResourceList(query: TechResourceQuery = {}): Promis
   }
 
   try {
-    const fromApi = await fetchListFromApi(query, apiUrl, timeoutMs, revalidateSeconds);
+    const fromApi = await fetchListFromApi(query, apiUrl, contentType, timeoutMs, revalidateSeconds);
     return {
       ...fromApi,
       dataSource: "api",

@@ -1,4 +1,4 @@
-import { getDefaultAiNewsBySlug } from "@/app/data/ai-news";
+import { getAiNewsDetail } from "@/lib/ai-news-service";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -6,11 +6,11 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const item = getDefaultAiNewsBySlug(slug);
+  const result = await getAiNewsDetail(slug);
 
-  if (!item) {
+  if (!result) {
     return Response.json({ message: "AI news item not found" }, { status: 404 });
   }
 
-  return Response.json(item);
+  return Response.json(result.item);
 }

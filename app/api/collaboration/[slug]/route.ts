@@ -1,4 +1,4 @@
-import { getDefaultCollaborationBySlug } from "@/app/data/collaboration";
+import { getCollaborationDetail } from "@/lib/collaboration-service";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -6,11 +6,11 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const item = getDefaultCollaborationBySlug(slug);
+  const result = await getCollaborationDetail(slug);
 
-  if (!item) {
+  if (!result) {
     return Response.json({ message: "Collaboration item not found" }, { status: 404 });
   }
 
-  return Response.json(item);
+  return Response.json(result.item);
 }

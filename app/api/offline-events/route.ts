@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
 
-import { queryDefaultOfflineEvents } from "@/app/data/offline-events";
+import { getOfflineEventList } from "@/lib/offline-events-service";
 
 export const revalidate = 1800;
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const tag = searchParams.get("tag") ?? undefined;
   const q = searchParams.get("q") ?? undefined;
 
-  const data = queryDefaultOfflineEvents({ page, pageSize, tag, q });
+  const data = await getOfflineEventList({ page, pageSize, tag, q });
 
   return Response.json(data);
 }

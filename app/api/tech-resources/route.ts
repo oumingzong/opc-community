@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
 
-import { queryDefaultTechResources } from "@/app/data/tech-resources";
+import { getTechResourceList } from "@/lib/tech-resource-service";
 
 export const revalidate = 1800;
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const tag = searchParams.get("tag") ?? undefined;
   const q = searchParams.get("q") ?? undefined;
 
-  const data = queryDefaultTechResources({ page, pageSize, tag, q });
+  const data = await getTechResourceList({ page, pageSize, tag, q });
 
   return Response.json(data);
 }

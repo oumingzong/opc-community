@@ -5,6 +5,7 @@ import {
   type OfflineEventListResponse,
   type OfflineEventQuery,
 } from "@/app/data/offline-events";
+import { parseContentHubDetailPayload, parseContentHubListPayload } from "@/lib/content-hub-adapter";
 
 export type OfflineEventDataSource = "default" | "api" | "fallback";
 
@@ -37,12 +38,13 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 function getConfig() {
   return {
     apiUrl: process.env.OFFLINE_EVENT_API_URL?.trim() ?? "",
+    contentType: process.env.OFFLINE_EVENT_CONTENT_TYPE?.trim() || "offline-event",
     timeoutMs: parsePositiveInt(process.env.OFFLINE_EVENT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
     revalidateSeconds: parsePositiveInt(process.env.OFFLINE_EVENT_REVALIDATE, DEFAULT_REVALIDATE_SECONDS),
   };
 }
 
-function withQuery(url: string, query: OfflineEventQuery): string {
+function withQuery(url: string, query: OfflineEventQuery, contentType: string): string {
   const target = new URL(url);
   if (query.page) {
     target.searchParams.set("page", String(query.page));
@@ -55,6 +57,9 @@ function withQuery(url: string, query: OfflineEventQuery): string {
   }
   if (query.q) {
     target.searchParams.set("q", query.q);
+  }
+  if (contentType) {
+    target.searchParams.set("type", contentType);
   }
   return target.toString();
 }
@@ -93,12 +98,37 @@ function isOfflineEventItem(value: unknown): value is OfflineEventItem {
   );
 }
 
-async function fetchListFromApi(query: OfflineEventQuery, apiUrl: string, timeoutMs: number, revalidateSeconds: number) {
+function mapContentHubItemToOfflineEventItem(item: {
+  id: number | string;
+  slug: string;
+  title: string;
+  summary?: string | null;
+  content?: string | null;
+  published_at?: string | null;
+  source_name?: string;
+  source_url?: string | null;
+  type?: string;
+}): OfflineEventItem {
+  return {
+    id: String(item.id),
+    slug: item.slug,
+    title: item.title,
+    summary: item.summary?.trim() || "暂无摘要",
+    content: item.content?.trim() || item.summary?.trim() || "暂无正文",
+    startAt: item.published_at || new Date().toISOString(),
+    organizer: item.source_name?.trim() || "OPC Content Hub",
+    venue: "线上/待定",
+    sourceUrl: item.source_url?.trim() || "https://opc-content-hub.2086206051.workers.dev",
+    tags: item.type ? [item.type] : ["活动"],
+  };
+}
+
+async function fetchListFromApi(query: OfflineEventQuery, apiUrl: string, contentType: string, timeoutMs: number, revalidateSeconds: number) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(withQuery(apiUrl, query), {
+    const response = await fetch(withQuery(apiUrl, query, contentType), {
       signal: controller.signal,
       next: { revalidate: revalidateSeconds },
     });
@@ -108,11 +138,22 @@ async function fetchListFromApi(query: OfflineEventQuery, apiUrl: string, timeou
     }
 
     const payload: unknown = await response.json();
-    if (!isOfflineEventListResponse(payload)) {
-      throw new Error("Offline event API response shape is invalid");
+    if (isOfflineEventListResponse(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubListPayload(payload);
+    if (contentHub) {
+      return {
+        items: contentHub.items.map(mapContentHubItemToOfflineEventItem),
+        total: contentHub.total ?? contentHub.items.length,
+        page: contentHub.page ?? query.page ?? 1,
+        pageSize: contentHub.pageSize ?? query.pageSize ?? contentHub.items.length,
+      };
+    }
+
+    throw new Error("Offline event API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
@@ -138,18 +179,24 @@ async function fetchDetailFromApi(slug: string, apiUrl: string, timeoutMs: numbe
     }
 
     const payload: unknown = await response.json();
-    if (!isOfflineEventItem(payload)) {
-      throw new Error("Offline event detail API response shape is invalid");
+    if (isOfflineEventItem(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubDetailPayload(payload);
+    if (contentHub) {
+      return mapContentHubItemToOfflineEventItem(contentHub.item);
+    }
+
+    throw new Error("Offline event detail API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
 }
 
 export async function getOfflineEventList(query: OfflineEventQuery = {}): Promise<OfflineEventListResult> {
-  const { apiUrl, timeoutMs, revalidateSeconds } = getConfig();
+  const { apiUrl, contentType, timeoutMs, revalidateSeconds } = getConfig();
 
   if (!apiUrl) {
     return {
@@ -159,7 +206,7 @@ export async function getOfflineEventList(query: OfflineEventQuery = {}): Promis
   }
 
   try {
-    const fromApi = await fetchListFromApi(query, apiUrl, timeoutMs, revalidateSeconds);
+    const fromApi = await fetchListFromApi(query, apiUrl, contentType, timeoutMs, revalidateSeconds);
     return {
       ...fromApi,
       dataSource: "api",

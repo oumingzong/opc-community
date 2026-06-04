@@ -1,4 +1,4 @@
-import { getDefaultTechResourceBySlug } from "@/app/data/tech-resources";
+import { getTechResourceDetail } from "@/lib/tech-resource-service";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -6,11 +6,11 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const item = getDefaultTechResourceBySlug(slug);
+  const result = await getTechResourceDetail(slug);
 
-  if (!item) {
+  if (!result) {
     return Response.json({ message: "Tech resource item not found" }, { status: 404 });
   }
 
-  return Response.json(item);
+  return Response.json(result.item);
 }

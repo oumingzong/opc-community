@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke:phase1": "powershell -ExecutionPolicy Bypass -File ./scripts/smoke-phase1.ps1"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.21",

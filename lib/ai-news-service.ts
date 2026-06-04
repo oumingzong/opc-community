@@ -5,6 +5,7 @@ import {
   type AiNewsListResponse,
   type AiNewsQuery,
 } from "@/app/data/ai-news";
+import { parseContentHubDetailPayload, parseContentHubListPayload } from "@/lib/content-hub-adapter";
 
 export type AiNewsDataSource = "default" | "api" | "fallback";
 
@@ -37,12 +38,13 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 function getConfig() {
   return {
     apiUrl: process.env.AI_NEWS_API_URL?.trim() ?? "",
+    contentType: process.env.AI_NEWS_CONTENT_TYPE?.trim() || "news",
     timeoutMs: parsePositiveInt(process.env.AI_NEWS_TIMEOUT_MS, DEFAULT_TIMEOUT_MS),
     revalidateSeconds: parsePositiveInt(process.env.AI_NEWS_REVALIDATE, DEFAULT_REVALIDATE_SECONDS),
   };
 }
 
-function withQuery(url: string, query: AiNewsQuery): string {
+function withQuery(url: string, query: AiNewsQuery, contentType: string): string {
   const target = new URL(url);
   if (query.page) {
     target.searchParams.set("page", String(query.page));
@@ -55,6 +57,9 @@ function withQuery(url: string, query: AiNewsQuery): string {
   }
   if (query.q) {
     target.searchParams.set("q", query.q);
+  }
+  if (contentType) {
+    target.searchParams.set("type", contentType);
   }
   return target.toString();
 }
@@ -92,12 +97,36 @@ function isAiNewsItem(value: unknown): value is AiNewsItem {
   );
 }
 
-async function fetchFromApi(query: AiNewsQuery, apiUrl: string, timeoutMs: number, revalidateSeconds: number) {
+function mapContentHubItemToAiNewsItem(item: {
+  id: number | string;
+  slug: string;
+  title: string;
+  summary?: string | null;
+  content?: string | null;
+  published_at?: string | null;
+  source_name?: string;
+  source_url?: string | null;
+  type?: string;
+}): AiNewsItem {
+  return {
+    id: String(item.id),
+    slug: item.slug,
+    title: item.title,
+    summary: item.summary?.trim() || "暂无摘要",
+    content: item.content?.trim() || item.summary?.trim() || "暂无正文",
+    publishedAt: item.published_at || new Date().toISOString(),
+    sourceName: item.source_name?.trim() || "OPC Content Hub",
+    sourceUrl: item.source_url?.trim() || "https://opc-content-hub.2086206051.workers.dev",
+    tags: item.type ? [item.type] : ["资讯"],
+  };
+}
+
+async function fetchFromApi(query: AiNewsQuery, apiUrl: string, contentType: string, timeoutMs: number, revalidateSeconds: number) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(withQuery(apiUrl, query), {
+    const response = await fetch(withQuery(apiUrl, query, contentType), {
       signal: controller.signal,
       next: { revalidate: revalidateSeconds },
     });
@@ -107,11 +136,22 @@ async function fetchFromApi(query: AiNewsQuery, apiUrl: string, timeoutMs: numbe
     }
 
     const payload: unknown = await response.json();
-    if (!isAiNewsListResponse(payload)) {
-      throw new Error("AI news API response shape is invalid");
+    if (isAiNewsListResponse(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubListPayload(payload);
+    if (contentHub) {
+      return {
+        items: contentHub.items.map(mapContentHubItemToAiNewsItem),
+        total: contentHub.total ?? contentHub.items.length,
+        page: contentHub.page ?? query.page ?? 1,
+        pageSize: contentHub.pageSize ?? query.pageSize ?? contentHub.items.length,
+      };
+    }
+
+    throw new Error("AI news API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
@@ -137,18 +177,24 @@ async function fetchDetailFromApi(slug: string, apiUrl: string, timeoutMs: numbe
     }
 
     const payload: unknown = await response.json();
-    if (!isAiNewsItem(payload)) {
-      throw new Error("AI news detail API response shape is invalid");
+    if (isAiNewsItem(payload)) {
+      return payload;
     }
 
-    return payload;
+    const contentHub = parseContentHubDetailPayload(payload);
+    if (contentHub) {
+      return mapContentHubItemToAiNewsItem(contentHub.item);
+    }
+
+    throw new Error("AI news detail API response shape is invalid");
+
   } finally {
     clearTimeout(timer);
   }
 }
 
 export async function getAiNewsList(query: AiNewsQuery = {}): Promise<AiNewsListResult> {
-  const { apiUrl, timeoutMs, revalidateSeconds } = getConfig();
+  const { apiUrl, contentType, timeoutMs, revalidateSeconds } = getConfig();
 
   if (!apiUrl) {
     return {
@@ -158,7 +204,7 @@ export async function getAiNewsList(query: AiNewsQuery = {}): Promise<AiNewsList
   }
 
   try {
-    const fromApi = await fetchFromApi(query, apiUrl, timeoutMs, revalidateSeconds);
+    const fromApi = await fetchFromApi(query, apiUrl, contentType, timeoutMs, revalidateSeconds);
     return {
       ...fromApi,
       dataSource: "api",

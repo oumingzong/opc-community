@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
 
-import { queryDefaultCollaborations } from "@/app/data/collaboration";
+import { getCollaborationList } from "@/lib/collaboration-service";
 
 export const revalidate = 1800;
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const tag = searchParams.get("tag") ?? undefined;
   const q = searchParams.get("q") ?? undefined;
 
-  const data = queryDefaultCollaborations({ page, pageSize, tag, q });
+  const data = await getCollaborationList({ page, pageSize, tag, q });
 
   return Response.json(data);
 }

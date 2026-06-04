@@ -82,3 +82,30 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `AI_NEWS_FALLBACK_ENABLED`：后端失败时是否回退默认数据（默认 `true`，设置为 `false` 则直接抛错）
 
 当 `AI_NEWS_API_URL` 已配置时，页面优先拉取后端数据；失败时按 `AI_NEWS_FALLBACK_ENABLED` 决定是否自动回退到默认数据。
+
+## 第一阶段实施（已开始）
+
+第一阶段目标：把同域 API 路由统一切到 Service 层，确保读取链路一致，并通过 `dataSource` 观测数据来源（`default/api/fallback`）。
+
+### 已提供工具
+
+- 环境变量模板：`.env.example`
+- 一键冒烟脚本：`scripts/smoke-phase1.ps1`
+- npm 命令：`npm run smoke:phase1`
+
+### 使用步骤
+
+1. 复制 `.env.example` 为 `.env.local` 并填写对应后端地址。
+2. 启动前端：`npm run dev`
+3. 运行冒烟：`npm run smoke:phase1`
+
+脚本会验证四类资源的：
+
+- 列表接口可用
+- `dataSource` 值合法
+- 详情接口可返回对应 slug
+
+### 契约注意事项
+
+- `resources/hub` 模块使用 `NEXT_PUBLIC_CONTENT_API_BASE`，可直接对接 `opc-content-hub` 的 `/api/public/*`。
+- `AI_NEWS_API_URL`、`COLLAB_API_URL`、`OFFLINE_EVENT_API_URL`、`TECH_RESOURCE_API_URL` 这四个 Service 变量要求的是各自模块的专用返回结构，不建议直接指向通用 `/api/public/contents`，否则会触发类型校验并回退。
