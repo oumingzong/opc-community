@@ -22,7 +22,11 @@ function Assert-HasValue {
     [Parameter(Mandatory = $true)] [string]$Name
   )
 
-  if ($null -eq $Value -or $Value -eq "") {
+  if ($null -eq $Value) {
+    throw "Assertion failed: $Name is null"
+  }
+
+  if ($Value -is [string] -and $Value.Trim() -eq "") {
     throw "Assertion failed: $Name is empty"
   }
 }
