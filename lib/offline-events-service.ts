@@ -21,6 +21,7 @@ export type OfflineEventDetailResult = {
 const DEFAULT_TIMEOUT_MS = 5000;
 const DEFAULT_REVALIDATE_SECONDS = 1800;
 const FALLBACK_ENABLED = process.env.OFFLINE_EVENT_FALLBACK_ENABLED !== "false";
+const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
   if (!value) {
@@ -128,10 +129,17 @@ async function fetchListFromApi(query: OfflineEventQuery, apiUrl: string, conten
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(withQuery(apiUrl, query, contentType), {
-      signal: controller.signal,
-      next: { revalidate: revalidateSeconds },
-    });
+    const response = await fetch(withQuery(apiUrl, query, contentType),
+      IS_DEVELOPMENT
+        ? {
+            signal: controller.signal,
+            cache: "no-store",
+          }
+        : {
+            signal: controller.signal,
+            next: { revalidate: revalidateSeconds },
+          }
+    );
 
     if (!response.ok) {
       throw new Error(`Offline event API request failed with status ${response.status}`);
@@ -165,10 +173,17 @@ async function fetchDetailFromApi(slug: string, apiUrl: string, timeoutMs: numbe
 
   try {
     const detailUrl = `${apiUrl.replace(/\/$/, "")}/${encodeURIComponent(slug)}`;
-    const response = await fetch(detailUrl, {
-      signal: controller.signal,
-      next: { revalidate: revalidateSeconds },
-    });
+    const response = await fetch(detailUrl,
+      IS_DEVELOPMENT
+        ? {
+            signal: controller.signal,
+            cache: "no-store",
+          }
+        : {
+            signal: controller.signal,
+            next: { revalidate: revalidateSeconds },
+          }
+    );
 
     if (response.status === 404) {
       return undefined;
