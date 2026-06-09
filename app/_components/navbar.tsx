@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Brain, Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const navLinks = [
+    { label: "交流广场", href: "/plaza" },
     { label: "广州OPC载体", href: "/community-map" },
     { label: "社区动态", href: "/news" },
     { label: "资源中心", href: "/resources" },
@@ -14,6 +17,13 @@ export default function Navbar() {
     { label: "相关政策", href: "/policy" },
     { label: "关于我们", href: "/about" },
   ];
+
+  const linkClass = (href: string) =>
+    `text-sm transition-colors font-medium ${
+      pathname === href || pathname.startsWith(href + "/")
+        ? "text-blue-600"
+        : "text-gray-600 hover:text-blue-600"
+    }`;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-sm">
@@ -31,18 +41,8 @@ export default function Navbar() {
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/plaza"
-              className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              交流广场
-            </Link>
             {navLinks.map((l) => (
-              <Link
-                key={l.label}
-                href={l.href}
-                className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium"
-              >
+              <Link key={l.label} href={l.href} className={linkClass(l.href)}>
                 {l.label}
               </Link>
             ))}
@@ -64,19 +64,12 @@ export default function Navbar() {
       </div>
       {open && (
         <div className="md:hidden bg-white border-t border-blue-50 px-4 py-4 space-y-3">
-          <Link
-            href="/plaza"
-            onClick={() => setOpen(false)}
-            className="block text-sm text-gray-700 hover:text-blue-600 font-medium py-1"
-          >
-            交流广场
-          </Link>
           {navLinks.map((l) => (
             <Link
               key={l.label}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="block text-sm text-gray-700 hover:text-blue-600 font-medium py-1"
+              className={`block text-sm font-medium py-1 ${pathname === l.href || pathname.startsWith(l.href + "/") ? "text-blue-600" : "text-gray-700 hover:text-blue-600"}`}
             >
               {l.label}
             </Link>

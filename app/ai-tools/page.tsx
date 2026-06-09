@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
@@ -311,7 +311,7 @@ export default function AIToolsPage() {
                       {/* Features */}
                       <div className="mb-4">
                         <div className="flex flex-wrap gap-1">
-                          {tool.tags.slice(0, 3).map((tag) => (
+                          {(tool.tags ?? []).slice(0, 3).map((tag) => (
                             <span
                               key={`${tool.id}-${tag}`}
                               className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700"

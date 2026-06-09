@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, MapPin } from "lucide-react";
 
@@ -77,7 +77,7 @@ export default async function ResourcesPage() {
                 </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.slice(0, 2).map((tag) => (
+                    {(item.tags ?? []).slice(0, 2).map((tag) => (
                       <span key={`${item.id}-${tag}`} className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">
                         {tag}
                       </span>
@@ -146,7 +146,7 @@ export default async function ResourcesPage() {
                 </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.slice(0, 2).map((tag) => (
+                    {(item.tags ?? []).slice(0, 2).map((tag) => (
                       <span key={`${item.id}-${tag}`} className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
                         {tag}
                       </span>
@@ -214,7 +214,7 @@ export default async function ResourcesPage() {
                 </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.slice(0, 2).map((tag) => (
+                    {(item.tags ?? []).slice(0, 2).map((tag) => (
                       <span key={`${item.id}-${tag}`} className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
                         {tag}
                       </span>
@@ -277,7 +277,7 @@ export default async function ResourcesPage() {
                 </div>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.slice(0, 2).map((tag) => (
+                    {(item.tags ?? []).slice(0, 2).map((tag) => (
                       <span key={`${item.id}-${tag}`} className="rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700">
                         {tag}
                       </span>

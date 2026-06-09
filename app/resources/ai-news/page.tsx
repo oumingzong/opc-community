@@ -84,7 +84,7 @@ export default async function AiNewsCenterPage() {
               </div>
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
-                  {item.tags.slice(0, 3).map((tag) => (
+                  {(item.tags ?? []).slice(0, 3).map((tag) => (
                     <span
                       key={`${item.id}-${tag}`}
                       className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700"

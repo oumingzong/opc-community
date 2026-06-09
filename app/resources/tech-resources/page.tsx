@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, RefreshCw } from "lucide-react";
 
@@ -84,7 +84,7 @@ export default async function TechResourcesPage() {
               </div>
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
-                  {item.tags.slice(0, 3).map((tag) => (
+                  {(item.tags ?? []).slice(0, 3).map((tag) => (
                     <span
                       key={`${item.id}-${tag}`}
                       className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
