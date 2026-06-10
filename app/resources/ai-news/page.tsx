@@ -66,7 +66,7 @@ export default async function AiNewsCenterPage() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {news.items.map((item) => (
+          {news.items.map((item, idx) => (
             <article
               key={item.id}
               className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
@@ -79,6 +79,7 @@ export default async function AiNewsCenterPage() {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    priority={idx === 0}
                   />
                 </div>
               </div>

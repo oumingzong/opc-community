@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getPolicyPreview } from "./data/policies";
+import LatestUpdates from "./_components/latest-updates";
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
@@ -351,6 +352,7 @@ export default function Home() {
       <Stats />
       <News />
       <PolicyPreview />
+      <LatestUpdates />
       <CTABanner />
     </main>
   );
