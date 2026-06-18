@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useKeyboardNav } from "@/app/_hooks/use-keyboard-nav";
 
 // ── Types ──────────────────────────────────────────────
 
@@ -47,9 +49,57 @@ const CONTENT_TYPES = [
   { value: "offline-event", label: "线下活动" },
 ];
 
+// ── Confirm Dialog ──────────────────────────────────────
+
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  confirmColor,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  confirmColor: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="w-full max-w-sm rounded-2xl border bg-white p-6 shadow-xl">
+        <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+        <p className="mt-2 text-sm text-slate-600">{message}</p>
+        <div className="mt-5 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className={`rounded-lg px-4 py-2 text-sm font-medium text-white ${confirmColor}`}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Component ───────────────────────────────────────────
 
 export default function AdminReviewPage() {
+  const router = useRouter();
   const [status, setStatus] = useState<ContentStatus>("draft");
   const [contentType, setContentType] = useState("");
   const [page, setPage] = useState(1);
@@ -57,6 +107,17 @@ export default function AdminReviewPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+
+  // 批量选择
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  // 确认对话框
+  const [confirmState, setConfirmState] = useState<{
+    title: string;
+    message: string;
+    confirmLabel: string;
+    confirmColor: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -75,6 +136,7 @@ export default function AdminReviewPage() {
       }
       const json = (await resp.json()) as ReviewResponse;
       setData(json);
+      setSelectedIds(new Set());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -86,25 +148,92 @@ export default function AdminReviewPage() {
     void fetchData();
   }, [fetchData]);
 
-  const handleAction = async (id: number, action: "publish" | "reject" | "archive") => {
+  // 键盘导航
+  const items = useMemo(() => data?.items ?? [], [data]);
+  const { focusedIndex } = useKeyboardNav(items.length, (index) => {
+    const item = items[index];
+    if (item) {
+      router.push(`/admin/content/edit/${item.id}`);
+    }
+  });
+
+  const showConfirm = (
+    title: string,
+    message: string,
+    confirmLabel: string,
+    confirmColor: string,
+    onConfirm: () => void
+  ) => {
+    setConfirmState({ title, message, confirmLabel, confirmColor, onConfirm });
+  };
+
+  const executeAction = async (id: number, action: "publish" | "reject" | "archive") => {
     setActionFeedback(null);
     try {
-      const resp = await fetch(
-        `/api/admin/review?id=${id}&action=${action}`,
-        { method: "POST" }
-      );
+      const resp = await fetch(`/api/admin/review?id=${id}&action=${action}`, {
+        method: "POST",
+      });
       const result = await resp.json();
       if (!resp.ok) {
-        throw new Error(result.error ?? `HTTP ${resp.status}`);
+        throw new Error((result as { error?: string }).error ?? `HTTP ${resp.status}`);
       }
       setActionFeedback(
-        result.changed
+        (result as { changed: boolean }).changed
           ? `✅ #${id} 已${action === "publish" ? "发布" : action === "reject" ? "拒绝" : "归档"}`
           : `ℹ️ #${id} 状态未变化`
       );
       await fetchData();
     } catch (err) {
       setActionFeedback(`❌ ${err instanceof Error ? err.message : "操作失败"}`);
+    }
+  };
+
+  const executeBatchAction = async (ids: number[], action: "publish" | "reject" | "archive") => {
+    setActionFeedback(null);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of ids) {
+      try {
+        const resp = await fetch(`/api/admin/review?id=${id}&action=${action}`, {
+          method: "POST",
+        });
+        if (resp.ok) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setActionFeedback(
+      failCount > 0
+        ? `✅ ${successCount} 条成功, ❌ ${failCount} 条失败`
+        : `✅ 成功操作 ${successCount} 条内容`
+    );
+    await fetchData();
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (!data) return;
+    if (selectedIds.size === data.items.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(data.items.map((i) => i.id)));
     }
   };
 
@@ -151,7 +280,7 @@ export default function AdminReviewPage() {
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Filters & Actions */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <select
           value={contentType}
@@ -167,6 +296,51 @@ export default function AdminReviewPage() {
             </option>
           ))}
         </select>
+
+        {/* 批量操作 */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">
+              已选 {selectedIds.size} 条
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                showConfirm(
+                  "批量发布",
+                  `确定要发布选中的 ${selectedIds.size} 条内容吗？`,
+                  "批量发布",
+                  "bg-green-600 hover:bg-green-700",
+                  () => {
+                    void executeBatchAction(Array.from(selectedIds), "publish");
+                    setConfirmState(null);
+                  }
+                )
+              }
+              className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+            >
+              批量发布
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                showConfirm(
+                  "批量拒绝",
+                  `确定要拒绝选中的 ${selectedIds.size} 条内容吗？`,
+                  "批量拒绝",
+                  "bg-red-500 hover:bg-red-600",
+                  () => {
+                    void executeBatchAction(Array.from(selectedIds), "reject");
+                    setConfirmState(null);
+                  }
+                )
+              }
+              className="rounded bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+            >
+              批量拒绝
+            </button>
+          </div>
+        )}
 
         <button
           type="button"
@@ -184,6 +358,11 @@ export default function AdminReviewPage() {
             {actionFeedback}
           </span>
         )}
+      </div>
+
+      {/* 键盘导航提示 */}
+      <div className="mb-3 text-xs text-gray-400">
+        💡 提示: ↑↓ 切换行, Enter 编辑, Shift+点击 多选
       </div>
 
       {/* Error */}
@@ -205,6 +384,14 @@ export default function AdminReviewPage() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
+                  <th className="w-10 px-4 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={data.items.length > 0 && selectedIds.size === data.items.length}
+                      onChange={toggleSelectAll}
+                      className="rounded border-gray-300"
+                    />
+                  </th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
                     ID
                   </th>
@@ -231,19 +418,27 @@ export default function AdminReviewPage() {
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {data.items.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-12 text-center text-gray-400"
-                    >
+                    <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
                       暂无数据
                     </td>
                   </tr>
                 ) : (
-                  data.items.map((item) => (
+                  data.items.map((item, idx) => (
                     <tr
                       key={item.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-900/50"
+                      className={`hover:bg-gray-50 dark:hover:bg-gray-900/50 cursor-pointer ${
+                        focusedIndex === idx ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                      }`}
+                      onClick={() => router.push(`/admin/content/edit/${item.id}`)}
                     >
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(item.id)}
+                          onChange={() => toggleSelect(item.id)}
+                          className="rounded border-gray-300"
+                        />
+                      </td>
                       <td className="px-4 py-3 text-gray-500">#{item.id}</td>
                       <td className="max-w-xs px-4 py-3">
                         <div className="font-medium text-gray-900 dark:text-white truncate">
@@ -273,19 +468,41 @@ export default function AdminReviewPage() {
                       <td className="whitespace-nowrap px-4 py-3 text-gray-500">
                         {formatDate(item.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                         {item.status === "draft" && (
                           <div className="flex justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() => handleAction(item.id, "publish")}
+                              onClick={() =>
+                                showConfirm(
+                                  "发布内容",
+                                  `确定要发布「${item.title}」吗？`,
+                                  "发布",
+                                  "bg-green-600 hover:bg-green-700",
+                                  () => {
+                                    void executeAction(item.id, "publish");
+                                    setConfirmState(null);
+                                  }
+                                )
+                              }
                               className="rounded bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-700"
                             >
                               发布
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleAction(item.id, "reject")}
+                              onClick={() =>
+                                showConfirm(
+                                  "拒绝内容",
+                                  `确定要拒绝「${item.title}」吗？`,
+                                  "拒绝",
+                                  "bg-red-500 hover:bg-red-600",
+                                  () => {
+                                    void executeAction(item.id, "reject");
+                                    setConfirmState(null);
+                                  }
+                                )
+                              }
                               className="rounded bg-red-500 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-600"
                             >
                               拒绝
@@ -296,7 +513,18 @@ export default function AdminReviewPage() {
                           <div className="flex justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() => handleAction(item.id, "archive")}
+                              onClick={() =>
+                                showConfirm(
+                                  "归档内容",
+                                  `确定要将「${item.title}」归档吗？`,
+                                  "归档",
+                                  "bg-gray-500 hover:bg-gray-600",
+                                  () => {
+                                    void executeAction(item.id, "archive");
+                                    setConfirmState(null);
+                                  }
+                                )
+                              }
                               className="rounded bg-gray-500 px-2.5 py-1 text-xs font-medium text-white hover:bg-gray-600"
                             >
                               归档
@@ -306,7 +534,7 @@ export default function AdminReviewPage() {
                         {(item.status === "rejected" || item.status === "archived") && (
                           <button
                             type="button"
-                            onClick={() => handleAction(item.id, "publish")}
+                            onClick={() => void executeAction(item.id, "publish")}
                             className="rounded bg-blue-500 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-600"
                           >
                             重新发布
@@ -347,6 +575,22 @@ export default function AdminReviewPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Confirm Dialog */}
+      {confirmState && (
+        <ConfirmDialog
+          open={true}
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmLabel={confirmState.confirmLabel}
+          confirmColor={confirmState.confirmColor}
+          onConfirm={() => {
+            confirmState.onConfirm();
+            setConfirmState(null);
+          }}
+          onCancel={() => setConfirmState(null)}
+        />
       )}
     </div>
   );
