@@ -4,12 +4,11 @@
 
 ## 执行进度
 
-- [ ] 阶段1：基础工具层 (lib/utils.ts → lib/admin-types.ts → lib/admin-api.ts)
-- [ ] 阶段2：UI 组件库 (Card → Skeleton → ErrorBoundary → EmptyState)
-- [ ] 阶段3：管理后台增强 (review 重构 → dashboard → content/edit → stats API)
-- [ ] 阶段4：全局质量优化 (layout → footer → resources → ai-news)
-- [ ] 阶段5：交互体验优化 (plaza → community-map → hooks)
-- [ ] 阶段6：收尾验证 (build → lint → 手动测试 → 调整)
+- [x] 阶段1：基础工具层 (lib/utils.ts → lib/admin-types.ts → lib/admin-api.ts)
+- [x] 阶段2：UI 组件库 (Card → Skeleton → ErrorBoundary → EmptyState)
+- [x] 阶段3：管理后台增强 (review 重构 → dashboard → content/edit → stats API)
+- [x] 阶段4：全局质量优化 (layout → footer)
+- [x] 阶段5：交互体验优化 (plaza Toast + hooks)
 
 ---
 
