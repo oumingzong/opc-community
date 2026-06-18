@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local template sandbox
 /frontend-template-react/
+
+# Nested duplicate folder
+opc-community/
