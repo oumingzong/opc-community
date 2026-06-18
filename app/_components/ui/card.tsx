@@ -1,22 +1,28 @@
+import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 type CardVariant = "cyan" | "rose" | "indigo" | "orange" | "default";
 
-const variantStyles: Record<CardVariant, {
-  border: string;
-  tagBg: string;
-  tagText: string;
-  linkColor: string;
-  hoverLinkColor: string;
-  gradient: string;
-}> = {
+const variantStyles: Record<
+  CardVariant,
+  {
+    border: string;
+    tagBg: string;
+    tagText: string;
+    linkColor: string;
+    hoverLinkColor: string;
+    gradient: string;
+  }
+> = {
   cyan: {
     border: "border-cyan-100",
     tagBg: "bg-cyan-50",
     tagText: "text-cyan-700",
     linkColor: "text-cyan-700",
-    hoverLinkColor: "text-cyan-800",
+    hoverLinkColor: "group-hover:text-cyan-700",
     gradient: "from-cyan-300 via-blue-500 to-sky-400",
   },
   rose: {
@@ -24,7 +30,7 @@ const variantStyles: Record<CardVariant, {
     tagBg: "bg-rose-50",
     tagText: "text-rose-700",
     linkColor: "text-rose-700",
-    hoverLinkColor: "text-rose-800",
+    hoverLinkColor: "group-hover:text-rose-700",
     gradient: "from-rose-300 via-orange-500 to-amber-400",
   },
   indigo: {
@@ -32,7 +38,7 @@ const variantStyles: Record<CardVariant, {
     tagBg: "bg-indigo-50",
     tagText: "text-indigo-700",
     linkColor: "text-indigo-700",
-    hoverLinkColor: "text-indigo-800",
+    hoverLinkColor: "group-hover:text-indigo-700",
     gradient: "from-indigo-300 via-blue-500 to-sky-400",
   },
   orange: {
@@ -40,7 +46,7 @@ const variantStyles: Record<CardVariant, {
     tagBg: "bg-orange-50",
     tagText: "text-orange-700",
     linkColor: "text-orange-700",
-    hoverLinkColor: "text-orange-800",
+    hoverLinkColor: "group-hover:text-orange-700",
     gradient: "from-orange-300 via-amber-500 to-yellow-400",
   },
   default: {
@@ -48,7 +54,7 @@ const variantStyles: Record<CardVariant, {
     tagBg: "bg-slate-50",
     tagText: "text-slate-700",
     linkColor: "text-blue-600",
-    hoverLinkColor: "text-blue-700",
+    hoverLinkColor: "group-hover:text-blue-600",
     gradient: "from-blue-300 via-blue-500 to-sky-400",
   },
 };
@@ -57,29 +63,37 @@ export function ResourceCard({
   variant = "default",
   coverImage,
   coverAlt,
+  imagePriority = false,
   tags,
   date,
   title,
   summary,
   href,
-  sourceLabel,
-  extraLinks,
+  meta,
+  footer,
+  actions,
   children,
 }: {
   variant?: CardVariant;
   coverImage?: string;
   coverAlt?: string;
+  imagePriority?: boolean;
   tags?: string[];
   date?: string;
   title: string;
   summary?: string;
   href?: string;
-  sourceLabel?: string;
-  extraLinks?: ReactNode;
+  meta?: ReactNode;
+  footer?: ReactNode;
+  actions?: ReactNode;
   children?: ReactNode;
 }) {
   const s = variantStyles[variant];
-  const Tag = href ? "a" : "div";
+
+  const titleClassName = cn(
+    "mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors",
+    href ? s.hoverLinkColor : ""
+  );
 
   return (
     <article
@@ -89,20 +103,22 @@ export function ResourceCard({
       )}
     >
       {coverImage && (
-        <div className="mb-4 overflow-hidden rounded-xl bg-slate-100">
+        <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
           <div className="relative aspect-[16/9] w-full">
-            <img
+            <Image
               src={coverImage}
               alt={coverAlt ?? title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              priority={imagePriority}
             />
           </div>
         </div>
       )}
 
       <div className="mb-4 flex items-start justify-between gap-3">
-        {tags && tags.length > 0 && (
+        {tags && tags.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag) => (
               <span
@@ -118,33 +134,32 @@ export function ResourceCard({
               </span>
             ))}
           </div>
+        ) : (
+          <span />
         )}
-        {date && <span className="text-xs text-slate-400">{date}</span>}
+        {date && <span className="shrink-0 text-xs text-slate-400">{date}</span>}
       </div>
 
-      <Tag
-        href={href}
-        className={cn(
-          "mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:",
-          href ? s.linkColor : ""
-        )}
-      >
-        {title}
-      </Tag>
-
-      {summary && (
-        <p className="mb-4 text-sm leading-relaxed text-slate-600">{summary}</p>
+      {href ? (
+        <Link href={href} className={titleClassName}>
+          {title}
+        </Link>
+      ) : (
+        <h3 className={titleClassName}>{title}</h3>
       )}
+
+      {summary && <p className="mb-4 text-sm leading-relaxed text-slate-600">{summary}</p>}
+
+      {meta && <div className="mb-4 text-xs text-slate-500">{meta}</div>}
 
       {children}
 
-      {sourceLabel && (
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-500">{sourceLabel}</span>
+      {(footer || actions) && (
+        <div className="flex items-center justify-between gap-3">
+          {footer ? <div className="min-w-0 text-xs text-slate-500">{footer}</div> : <span />}
+          {actions && <div className="flex flex-nowrap items-center gap-3 whitespace-nowrap">{actions}</div>}
         </div>
       )}
-
-      {extraLinks}
 
       <div
         className={cn(
@@ -156,10 +171,6 @@ export function ResourceCard({
   );
 }
 
-export function CardGrid({ children }: { children: ReactNode }) {
-  return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-      {children}
-    </div>
-  );
+export function CardGrid({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn("grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3", className)}>{children}</div>;
 }

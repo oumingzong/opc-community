@@ -1,11 +1,59 @@
 ﻿import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, ExternalLink, MapPin } from "lucide-react";
+import type { ReactNode } from "react";
 
+import { CardGrid, ResourceCard } from "@/app/_components/ui/card";
 import { getAiNewsList } from "@/lib/ai-news-service";
 import { getCollaborationList } from "@/lib/collaboration-service";
 import { getOfflineEventList } from "@/lib/offline-events-service";
 import { getTechResourceList } from "@/lib/tech-resource-service";
+
+type SectionVariant = "cyan" | "rose" | "indigo" | "orange";
+
+type ResourceSectionProps<T> = {
+  title: string;
+  href: string;
+  desktopCta: string;
+  mobileCta: string;
+  variant: SectionVariant;
+  items: T[];
+  renderItem: (item: T) => ReactNode;
+};
+
+const sectionStyles: Record<
+  SectionVariant,
+  {
+    section: string;
+    title: string;
+    desktopLink: string;
+    mobileButton: string;
+  }
+> = {
+  cyan: {
+    section: "from-cyan-50 via-blue-50 to-white",
+    title: "from-cyan-700 to-blue-700",
+    desktopLink: "text-blue-600 hover:text-blue-700",
+    mobileButton: "from-cyan-500 to-blue-600",
+  },
+  rose: {
+    section: "from-rose-50 via-orange-50 to-white",
+    title: "from-rose-700 to-orange-700",
+    desktopLink: "text-rose-700 hover:text-rose-800",
+    mobileButton: "from-rose-500 to-orange-600",
+  },
+  indigo: {
+    section: "from-indigo-50 via-purple-50 to-white",
+    title: "from-indigo-700 to-purple-700",
+    desktopLink: "text-indigo-700 hover:text-indigo-800",
+    mobileButton: "from-indigo-500 to-blue-600",
+  },
+  orange: {
+    section: "from-orange-50 via-amber-50 to-white",
+    title: "from-orange-700 to-amber-700",
+    desktopLink: "text-orange-700 hover:text-orange-800",
+    mobileButton: "from-orange-500 to-amber-600",
+  },
+};
 
 function toHumanDate(isoDate: string): string {
   const date = new Date(isoDate);
@@ -28,6 +76,66 @@ function getCoverAlt(item: { title: string; coverImageAlt?: string }): string {
   return item.coverImageAlt?.trim() || `${item.title} 预览图`;
 }
 
+function SectionLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: ReactNode;
+  className: string;
+}) {
+  return (
+    <Link href={href} className={className}>
+      {children}
+      <ArrowRight className="h-4 w-4" />
+    </Link>
+  );
+}
+
+function ResourceSection<T>({
+  title,
+  href,
+  desktopCta,
+  mobileCta,
+  variant,
+  items,
+  renderItem,
+}: ResourceSectionProps<T>) {
+  const styles = sectionStyles[variant];
+
+  return (
+    <section
+      className={`mb-12 -mx-4 bg-linear-to-b px-0 py-10 sm:-mx-6 sm:rounded-3xl lg:-mx-8 ${styles.section}`}
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <h2 className={`bg-linear-to-r bg-clip-text text-2xl font-bold text-transparent ${styles.title}`}>
+            {title}
+          </h2>
+          <SectionLink
+            href={href}
+            className={`hidden items-center gap-1 whitespace-nowrap text-sm font-semibold sm:inline-flex ${styles.desktopLink}`}
+          >
+            {desktopCta}
+          </SectionLink>
+        </div>
+
+        <CardGrid>{items.map((item) => renderItem(item))}</CardGrid>
+
+        <div className="mt-8 sm:hidden">
+          <SectionLink
+            href={href}
+            className={`inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r px-5 py-3 text-sm font-semibold text-white ${styles.mobileButton}`}
+          >
+            {mobileCta}
+          </SectionLink>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default async function ResourcesPage() {
   const news = await getAiNewsList({ page: 1, pageSize: 3 });
   const collaborations = await getCollaborationList({ page: 1, pageSize: 3 });
@@ -36,10 +144,12 @@ export default async function ResourcesPage() {
 
   return (
     <main className="min-h-screen bg-linear-to-b from-white via-slate-50 to-cyan-50/30 py-20">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-5 shadow-sm">
+      <section className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-slate-600">内容服务联调入口已上线，可直接验证列表、详情、404 与 fallback。</p>
+            <p className="text-sm text-slate-600">
+              内容服务联调入口已上线，可直接验证列表、详情、404 与 fallback。
+            </p>
             <Link
               href="/resources/hub"
               className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 hover:text-blue-700"
@@ -51,273 +161,156 @@ export default async function ResourcesPage() {
         </div>
       </section>
 
-      <section className="bg-linear-to-b from-cyan-50 via-blue-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-cyan-700 to-blue-700 bg-clip-text text-transparent">AI 前沿资讯</h2>
-            <Link href="/resources/ai-news" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 hover:text-blue-700">
-              查看完整资讯中心
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {news.items.map((item) => (
-              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                  <div className="relative aspect-[16/9] w-full">
-                    <Image
-                      src={getCoverImage(item, "ai-news")}
-                      alt={getCoverAlt(item)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                    {(item.tags ?? []).slice(0, 2).map((tag) => (
-                      <span key={`${item.id}-${tag}`} className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
-                </div>
-
-                <Link href={`/resources/ai-news/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-cyan-700">
-                  {item.title}
+      <ResourceSection
+        title="AI 前沿资讯"
+        href="/resources/ai-news"
+        desktopCta="查看完整资讯中心"
+        mobileCta="查看完整资讯中心"
+        variant="cyan"
+        items={news.items}
+        renderItem={(item) => (
+          <ResourceCard
+            key={item.id}
+            variant="cyan"
+            coverImage={getCoverImage(item, "ai-news")}
+            coverAlt={getCoverAlt(item)}
+            tags={item.tags}
+            date={toHumanDate(item.publishedAt)}
+            title={item.title}
+            summary={item.summary}
+            href={`/resources/ai-news/${item.slug}`}
+            footer={`来源：${item.sourceName}`}
+            actions={
+              <>
+                <Link
+                  href={`/resources/ai-news/${item.slug}`}
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
+                >
+                  详情
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
+                <a
+                  href={item.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
+                >
+                  原文
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </>
+            }
+          />
+        )}
+      />
 
-                <p className="mb-5 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+      <ResourceSection
+        title="开放协作交流"
+        href="/resources/collaboration"
+        desktopCta="查看完整协作页"
+        mobileCta="查看完整协作页"
+        variant="rose"
+        items={collaborations.items}
+        renderItem={(item) => (
+          <ResourceCard
+            key={item.id}
+            variant="rose"
+            coverImage={getCoverImage(item, "collaboration")}
+            coverAlt={getCoverAlt(item)}
+            tags={item.tags}
+            date={toHumanDate(item.publishedAt)}
+            title={item.title}
+            summary={item.summary}
+            href={`/resources/collaboration/${item.slug}`}
+            meta={
+              <p className="inline-flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                {item.location}
+              </p>
+            }
+            footer={`主办：${item.organizer}`}
+            actions={
+              <Link
+                href={`/resources/collaboration/${item.slug}`}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-rose-700 transition-colors hover:text-rose-800"
+              >
+                详情
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            }
+          />
+        )}
+      />
 
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-slate-500">来源：{item.sourceName}</span>
-                  <div className="flex flex-nowrap items-center gap-3 whitespace-nowrap">
-                    <Link href={`/resources/ai-news/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800">
-                      详情
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                    <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700">
-                      原文
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
+      <ResourceSection
+        title="技术资源共享"
+        href="/resources/tech-resources"
+        desktopCta="查看完整资源页"
+        mobileCta="查看完整资源页"
+        variant="indigo"
+        items={techResources.items}
+        renderItem={(item) => (
+          <ResourceCard
+            key={item.id}
+            variant="indigo"
+            coverImage={getCoverImage(item, "tech-resources")}
+            coverAlt={getCoverAlt(item)}
+            tags={item.tags}
+            date={toHumanDate(item.publishedAt)}
+            title={item.title}
+            summary={item.summary}
+            href={`/resources/tech-resources/${item.slug}`}
+            footer={`来源：${item.provider}`}
+            actions={
+              <Link
+                href={`/resources/tech-resources/${item.slug}`}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-700 transition-colors hover:text-indigo-800"
+              >
+                详情
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            }
+          />
+        )}
+      />
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-cyan-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 sm:hidden">
-            <Link href="/resources/ai-news" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-semibold text-white">
-              查看完整资讯中心
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-linear-to-b from-rose-50 via-orange-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-rose-700 to-orange-700 bg-clip-text text-transparent">开放协作交流</h2>
-            <Link href="/resources/collaboration" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-rose-700 hover:text-rose-800">
-              查看完整协作页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {collaborations.items.map((item) => (
-              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                  <div className="relative aspect-[16/9] w-full">
-                    <Image
-                      src={getCoverImage(item, "collaboration")}
-                      alt={getCoverAlt(item)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                    {(item.tags ?? []).slice(0, 2).map((tag) => (
-                      <span key={`${item.id}-${tag}`} className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
-                </div>
-
-                <Link href={`/resources/collaboration/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-rose-700">
-                  {item.title}
-                </Link>
-
-                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
-
-                <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-slate-500">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {item.location}
-                </p>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-slate-500">主办：{item.organizer}</span>
-                  <Link href={`/resources/collaboration/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-rose-700 transition-colors hover:text-rose-800">
-                    详情
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-rose-300 via-orange-500 to-amber-400 opacity-0 transition-opacity group-hover:opacity-100" />
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 sm:hidden">
-            <Link href="/resources/collaboration" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-rose-500 to-orange-600 px-5 py-3 text-sm font-semibold text-white">
-              查看完整协作页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-linear-to-b from-indigo-50 via-purple-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">技术资源共享</h2>
-            <Link href="/resources/tech-resources" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-indigo-700 hover:text-indigo-800">
-              查看完整资源页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {techResources.items.map((item) => (
-              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                  <div className="relative aspect-[16/9] w-full">
-                    <Image
-                      src={getCoverImage(item, "tech-resources")}
-                      alt={getCoverAlt(item)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                    {(item.tags ?? []).slice(0, 2).map((tag) => (
-                      <span key={`${item.id}-${tag}`} className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
-                </div>
-
-                <Link href={`/resources/tech-resources/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-indigo-700">
-                  {item.title}
-                </Link>
-
-                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-slate-500">来源：{item.provider}</span>
-                  <Link href={`/resources/tech-resources/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-indigo-700 transition-colors hover:text-indigo-800">
-                    详情
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-indigo-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 sm:hidden">
-            <Link href="/resources/tech-resources" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-indigo-500 to-blue-600 px-5 py-3 text-sm font-semibold text-white">
-              查看完整资源页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-linear-to-b from-orange-50 via-amber-50 to-white py-10 px-0 -mx-4 sm:-mx-6 lg:-mx-8 mb-12 sm:rounded-3xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold bg-linear-to-r from-orange-700 to-amber-700 bg-clip-text text-transparent">线下活动沙龙</h2>
-            <Link href="/resources/offline-events" className="hidden sm:inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-orange-700 hover:text-orange-800">
-              查看完整活动页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {offlineEvents.items.map((item) => (
-              <article key={item.id} className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                  <div className="relative aspect-[16/9] w-full">
-                    <Image
-                      src={getCoverImage(item, "offline-events")}
-                      alt={getCoverAlt(item)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                    {(item.tags ?? []).slice(0, 2).map((tag) => (
-                      <span key={`${item.id}-${tag}`} className="rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-xs text-slate-400">{toHumanDate(item.startAt)}</span>
-                </div>
-
-                <Link href={`/resources/offline-events/${item.slug}`} className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-orange-700">
-                  {item.title}
-                </Link>
-
-                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
-
-                <p className="mb-4 inline-flex items-center gap-1.5 text-xs text-slate-500">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {item.venue}
-                </p>
-
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-slate-500">主办：{item.organizer}</span>
-                  <Link href={`/resources/offline-events/${item.slug}`} className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-orange-700 transition-colors hover:text-orange-800">
-                    详情
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-orange-300 via-amber-500 to-yellow-400 opacity-0 transition-opacity group-hover:opacity-100" />
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 sm:hidden">
-            <Link href="/resources/offline-events" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-orange-500 to-amber-600 px-5 py-3 text-sm font-semibold text-white">
-              查看完整活动页
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ResourceSection
+        title="线下活动沙龙"
+        href="/resources/offline-events"
+        desktopCta="查看完整活动页"
+        mobileCta="查看完整活动页"
+        variant="orange"
+        items={offlineEvents.items}
+        renderItem={(item) => (
+          <ResourceCard
+            key={item.id}
+            variant="orange"
+            coverImage={getCoverImage(item, "offline-events")}
+            coverAlt={getCoverAlt(item)}
+            tags={item.tags}
+            date={toHumanDate(item.startAt)}
+            title={item.title}
+            summary={item.summary}
+            href={`/resources/offline-events/${item.slug}`}
+            meta={
+              <p className="inline-flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                {item.venue}
+              </p>
+            }
+            footer={`主办：${item.organizer}`}
+            actions={
+              <Link
+                href={`/resources/offline-events/${item.slug}`}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-orange-700 transition-colors hover:text-orange-800"
+              >
+                详情
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            }
+          />
+        )}
+      />
     </main>
   );
 }

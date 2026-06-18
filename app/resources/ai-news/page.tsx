@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, ExternalLink, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink, Newspaper, RefreshCw, Sparkles } from "lucide-react";
 
+import { EmptyState } from "@/app/_components/ui/empty-state";
 import { getAiNewsList } from "@/lib/ai-news-service";
 
 const sourceLabel = {
@@ -65,73 +66,92 @@ export default async function AiNewsCenterPage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {news.items.map((item, idx) => (
-            <article
-              key={item.id}
-              className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-            >
-              <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                <div className="relative aspect-[16/9] w-full">
-                  <Image
-                    src={getCoverImage(item)}
-                    alt={getCoverAlt(item)}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    priority={idx === 0}
-                  />
-                </div>
-              </div>
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div className="flex flex-wrap gap-2">
-                  {(item.tags ?? []).slice(0, 3).map((tag) => (
-                    <span
-                      key={`${item.id}-${tag}`}
-                      className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
-              </div>
-
-              <Link
-                href={`/resources/ai-news/${item.slug}`}
-                className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-cyan-700"
+        {news.items.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-200 bg-white/80 shadow-sm">
+            <EmptyState
+              icon={<Newspaper className="h-8 w-8" />}
+              title="暂无 AI 资讯"
+              description="当前没有可展示的资讯内容。请稍后刷新，或等待管理端发布新的 AI 前沿资讯。"
+              action={
+                <Link
+                  href="/resources"
+                  className="inline-flex items-center gap-2 rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-cyan-700"
+                >
+                  返回资源中心
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              }
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {news.items.map((item, idx) => (
+              <article
+                key={item.id}
+                className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
-                {item.title}
-              </Link>
-
-              <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">来源：{item.sourceName}</span>
-                <div className="flex items-center gap-3">
-                  <Link
-                    href={`/resources/ai-news/${item.slug}`}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
-                  >
-                    查看详情
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <a
-                    href={item.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
-                  >
-                    原文
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                <div className="mb-4 overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full">
+                    <Image
+                      src={getCoverImage(item)}
+                      alt={getCoverAlt(item)}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      priority={idx === 0}
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {(item.tags ?? []).slice(0, 3).map((tag) => (
+                      <span
+                        key={`${item.id}-${tag}`}
+                        className="rounded-full border border-cyan-100 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-slate-400">{toHumanDate(item.publishedAt)}</span>
+                </div>
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-cyan-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
-            </article>
-          ))}
-        </div>
+                <Link
+                  href={`/resources/ai-news/${item.slug}`}
+                  className="mb-3 block text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-cyan-700"
+                >
+                  {item.title}
+                </Link>
+
+                <p className="mb-4 text-sm leading-relaxed text-slate-600">{item.summary}</p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">来源：{item.sourceName}</span>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/resources/ai-news/${item.slug}`}
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
+                    >
+                      查看详情
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <a
+                      href={item.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
+                    >
+                      原文
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-cyan-300 via-blue-500 to-sky-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

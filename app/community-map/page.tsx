@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Building2, Sparkles } from "lucide-react";
+
+import { EmptyState } from "@/app/_components/ui/empty-state";
+
 import { listCommunityCarriers } from "../data/community-carriers";
 import OpcLeafletMap from "./_components/opc-leaflet-map";
 
@@ -47,44 +50,54 @@ export default async function CommunityMapPage() {
             下方按载体分列展示文字与图片。当前为默认数据，后续可直接对接后端接口动态返回载体列表。
           </p>
 
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {carriers.map((carrier) => (
-              <article
-                key={carrier.id}
-                className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className="relative aspect-[4/3] bg-slate-100">
-                  <Image
-                    src={carrier.coverImage || "https://picsum.photos/1200/900?grayscale"}
-                    alt={carrier.coverImageAlt || `${carrier.name} 载体图片`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-slate-900">{carrier.name}</h3>
-                  <p className="mt-2 text-sm text-slate-600 leading-7">{carrier.summary}</p>
-
-                  <p className="mt-3 inline-flex items-start gap-2 text-sm text-slate-600 leading-7">
-                    {carrier.address}
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {carrier.capabilities.map((capability) => (
-                      <span
-                        key={capability}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
-                      >
-                        {capability}
-                      </span>
-                    ))}
+          {carriers.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70">
+              <EmptyState
+                icon={<Building2 className="h-8 w-8" />}
+                title="暂无社区载体数据"
+                description="当前没有可展示的 OPC 社区载体。请稍后刷新，或等待管理端补充地图点位与载体介绍。"
+              />
+            </div>
+          ) : (
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {carriers.map((carrier) => (
+                <article
+                  key={carrier.id}
+                  className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <div className="relative aspect-[4/3] bg-slate-100">
+                    <Image
+                      src={carrier.coverImage || "https://picsum.photos/1200/900?grayscale"}
+                      alt={carrier.coverImageAlt || `${carrier.name} 载体图片`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover"
+                    />
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+
+                  <div className="p-5">
+                    <h3 className="text-lg font-bold text-slate-900">{carrier.name}</h3>
+                    <p className="mt-2 text-sm text-slate-600 leading-7">{carrier.summary}</p>
+
+                    <p className="mt-3 inline-flex items-start gap-2 text-sm text-slate-600 leading-7">
+                      {carrier.address}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {carrier.capabilities.map((capability) => (
+                        <span
+                          key={capability}
+                          className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
+                        >
+                          {capability}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>
