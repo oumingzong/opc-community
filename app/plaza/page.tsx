@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Sparkles, X } from "lucide-react";
@@ -96,6 +96,13 @@ export default function PlazaPage() {
     };
   }, [activePost?.id]);
 
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = useCallback((message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    window.setTimeout(() => setToast(null), 3000);
+  }, []);
+
   const publishPost = async () => {
     const nextTitle = title.trim();
     const nextContent = content.trim();
@@ -124,8 +131,10 @@ export default function PlazaPage() {
       setTags("");
       setSelectedImages([]);
       setUploadError("");
+      showToast("发布成功 🎉", "success");
     } catch {
       setUploadError("发布失败，请稍后重试");
+      showToast("发布失败，请稍后重试", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -558,6 +567,17 @@ export default function PlazaPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-[80] animate-bounce rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-lg ${
+            toast.type === "success" ? "bg-green-600" : "bg-red-600"
+          }`}
+        >
+          {toast.message}
         </div>
       )}
     </main>
