@@ -24,6 +24,9 @@ export default function Footer() {
               <li><Link href="/resources" className="transition-colors hover:text-cyan-200">资源中心</Link></li>
               <li><Link href="/resources/offline-events" className="transition-colors hover:text-cyan-200">活动日历</Link></li>
               <li><Link href="/about" className="transition-colors hover:text-cyan-200">关于我们</Link></li>
+              {process.env.NODE_ENV !== "production" && (
+                <li><Link href="/admin/review" className="transition-colors hover:text-cyan-200 text-amber-300">⚙️ 管理后台</Link></li>
+              )}
             </ul>
           </div>
 
